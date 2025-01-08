@@ -1967,7 +1967,39 @@ bool8 ScrCmd_updatecoinsbox(struct ScriptContext *ctx)
 
 bool8 ScrCmd_trainerbattle(struct ScriptContext *ctx)
 {
-    ctx->scriptPtr = BattleSetup_ConfigureTrainerBattle(ctx->scriptPtr);
+    PtrStack trainerBattleScriptStack;
+    PtrStackInit(&trainerBattleScriptStack);
+
+    TrainerBattleLoadArgs(ctx->scriptPtr);
+    BattleSetup_ConfigureTrainerBattle(ctx->scriptPtr, &trainerBattleScriptStack, FALSE);
+
+    const u8* ptr;
+    while ((ptr = PtrStackPopU8(&trainerBattleScriptStack)) != NULL)
+    {
+        ScriptPush(ctx, ptr);
+    }
+
+    DebugPrintScriptStack;
+    
+    ctx->scriptPtr = ScriptPop(ctx);
+
+    //DebugPrintScriptStack;
+    return FALSE;
+}
+
+bool8 ScrCmd_facilitytrainerbattle(struct ScriptContext *ctx)
+{
+    u8 type = ScriptReadByte(ctx);
+
+    InitTrainerBattleVariables();
+    ctx->scriptPtr = BattleSetup_ConfigureFacilityTrainerBattle(type, ctx->scriptPtr);
+    return FALSE;
+}
+
+bool8 ScrCmd_setmultitrainerbattle(struct ScriptContext *ctx)
+{
+    MultiTrainerBattleLoadArgs(ctx->scriptPtr);
+
     return FALSE;
 }
 

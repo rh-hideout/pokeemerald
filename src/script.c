@@ -127,7 +127,7 @@ bool8 RunScriptCommand(struct ScriptContext *ctx)
     return TRUE;
 }
 
-static bool8 ScriptPush(struct ScriptContext *ctx, const u8 *ptr)
+bool8 ScriptPush(struct ScriptContext *ctx, const u8 *ptr)
 {
     if (ctx->stackDepth + 1 >= (int)ARRAY_COUNT(ctx->stack))
     {
@@ -141,7 +141,7 @@ static bool8 ScriptPush(struct ScriptContext *ctx, const u8 *ptr)
     }
 }
 
-static const u8 *ScriptPop(struct ScriptContext *ctx)
+const u8 *ScriptPop(struct ScriptContext *ctx)
 {
     if (ctx->stackDepth == 0)
         return NULL;
@@ -165,6 +165,7 @@ void ScriptReturn(struct ScriptContext *ctx)
 {
     ctx->scriptPtr = ScriptPop(ctx);
 }
+
 
 u16 ScriptReadHalfword(struct ScriptContext *ctx)
 {
@@ -269,6 +270,19 @@ void ScriptContext_Enable(void)
 {
     sGlobalScriptContextStatus = CONTEXT_RUNNING;
     LockPlayerFieldControls();
+}
+
+// Pops all scripts from one Stack and pushes them on the global script context
+bool32 ScriptContext_PushFromStack(PtrStack *stack)
+{
+    const u8* ptr;
+    while ((ptr = (u8*)PtrStackPop(stack)) != NULL)
+    {
+        if (ScriptPush(&sGlobalScriptContext, ptr) == TRUE)
+            return FALSE;
+    }
+    DebugPrintGlobalScriptStack;
+    return TRUE;
 }
 
 // Sets up and runs a script in its own context immediately. The script will be

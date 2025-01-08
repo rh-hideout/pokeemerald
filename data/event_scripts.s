@@ -88,7 +88,7 @@ gSpecialVars::
 	.4byte gSpecialVar_MonBoxId
 	.4byte gSpecialVar_MonBoxPos
 	.4byte gSpecialVar_Unused_0x8014
-	.4byte gTrainerBattleOpponent_A
+	.4byte gTrainerBattleParameter + 2	// gTrainerBattleParameter.params.battleOpponentA
 
 	.include "data/specials.inc"
 

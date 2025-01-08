@@ -612,8 +612,8 @@ TEST("Battle strings fit on the battle message window")
         sBattlerAbilities[j] = longAbilityID;
 
     // Set Trainers
-    gTrainerBattleOpponent_A = 1;
-    gTrainerBattleOpponent_B = 1;
+    TRAINER_BATTLE_PARAM.battleOpponentA = 1;
+    TRAINER_BATTLE_PARAM.battleOpponentB = 1;
 
     // Set battler to 1, so "The opposing " is prefixed when refering to battlers.
     gBattleTypeFlags |= BATTLE_TYPE_TRAINER;

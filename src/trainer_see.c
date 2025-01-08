@@ -1,6 +1,7 @@
 #include "global.h"
 #include "battle_setup.h"
 #include "event_data.h"
+#include "event_scripts.h"
 #include "event_object_movement.h"
 #include "field_effect.h"
 #include "field_player_avatar.h"
@@ -354,6 +355,8 @@ static const struct SpriteTemplate sSpriteTemplate_Emote =
     .callback = SpriteCB_TrainerIcons
 };
 
+#define OPCODE_OFFSET 1
+
 // code
 bool8 CheckForTrainersWantingBattle(void)
 {
@@ -387,24 +390,75 @@ bool8 CheckForTrainersWantingBattle(void)
             break;
     }
 
-    if (gNoOfApproachingTrainers == 1)
+    // handle battle pyramid and trainer hill until properly reworked
+    if (InBattlePyramid())
     {
-        ResetTrainerOpponentIds();
-        ConfigureAndSetUpOneTrainerBattle(gApproachingTrainers[gNoOfApproachingTrainers - 1].objectEventId,
-                                          gApproachingTrainers[gNoOfApproachingTrainers - 1].trainerScriptPtr);
-        gTrainerApproachedPlayer = TRUE;
-        return TRUE;
-    }
-    else if (gNoOfApproachingTrainers == 2)
-    {
-        ResetTrainerOpponentIds();
-        for (i = 0; i < gNoOfApproachingTrainers; i++, gApproachingTrainerId++)
+        if (gNoOfApproachingTrainers > 0) 
         {
-            ConfigureTwoTrainersBattle(gApproachingTrainers[i].objectEventId,
-                                       gApproachingTrainers[i].trainerScriptPtr);
+            ResetTrainerOpponentIds();
+            InitTrainerBattleVariables();
+
+            gSelectedObjectEvent = gApproachingTrainers[0].objectEventId;
+            gSpecialVar_LastTalked = gObjectEvents[gApproachingTrainers[0].objectEventId].localId;
+            BattleSetup_ConfigureFacilityTrainerBattle(TRAINER_BATTLE_PYRAMID, gApproachingTrainers[0].trainerScriptPtr + 2);
+            if (gNoOfApproachingTrainers > 1) 
+            {
+                gApproachingTrainerId++;
+                gSelectedObjectEvent = gApproachingTrainers[1].objectEventId;
+                gSpecialVar_LastTalked = gObjectEvents[gApproachingTrainers[1].objectEventId].localId;
+                BattleSetup_ConfigureFacilityTrainerBattle(TRAINER_BATTLE_PYRAMID, gApproachingTrainers[0].trainerScriptPtr + 2);
+                gApproachingTrainerId = 0;
+            }
+            ScriptContext_SetupScript(EventScript_StartTrainerApproach);
+            LockPlayerFieldControls();
+            return TRUE;
         }
-        SetUpTwoTrainersBattle();
-        gApproachingTrainerId = 0;
+    }
+    else if (InTrainerHill())
+    {
+        if (gNoOfApproachingTrainers > 0)
+        {
+            ResetTrainerOpponentIds();
+            InitTrainerBattleVariables();
+
+            gSelectedObjectEvent = gApproachingTrainers[0].objectEventId;
+            gSpecialVar_LastTalked = gObjectEvents[gApproachingTrainers[0].objectEventId].localId;
+            BattleSetup_ConfigureFacilityTrainerBattle(TRAINER_BATTLE_HILL, gApproachingTrainers[0].trainerScriptPtr + 2);
+            if (gNoOfApproachingTrainers > 1)
+            {
+                gApproachingTrainerId++;
+                gSelectedObjectEvent = gApproachingTrainers[1].objectEventId;
+                gSpecialVar_LastTalked = gObjectEvents[gApproachingTrainers[1].objectEventId].localId;
+                BattleSetup_ConfigureFacilityTrainerBattle(TRAINER_BATTLE_HILL, gApproachingTrainers[0].trainerScriptPtr + 2);
+                gApproachingTrainerId = 0;
+            }
+            ScriptContext_SetupScript(EventScript_StartTrainerApproach);
+            LockPlayerFieldControls();
+            return TRUE;
+        }
+    }
+    
+    if (gNoOfApproachingTrainers > 0) 
+    {
+        ResetTrainerOpponentIds();
+        
+        PtrStack trainerBattleScriptStack;
+        PtrStackInit(&trainerBattleScriptStack);
+        TrainerBattleLoadArgs(gApproachingTrainers[0].trainerScriptPtr + OPCODE_OFFSET);
+        if (gNoOfApproachingTrainers > 1)
+        {
+            gApproachingTrainerId++;
+            TrainerBattleLoadArgsSecondTrainer(gApproachingTrainers[1].trainerScriptPtr + OPCODE_OFFSET);
+            gApproachingTrainerId = 0;
+        }
+
+        BattleSetup_ConfigureTrainerBattle(gApproachingTrainers[0].trainerScriptPtr + OPCODE_OFFSET, &trainerBattleScriptStack, TRUE);
+        ScriptContext_SetupScript(EventSnippet_StartTrainerApproach);
+        ScriptContext_PushFromStack(&trainerBattleScriptStack);
+        LockPlayerFieldControls();
+
+        gSelectedObjectEvent = gApproachingTrainers[0].objectEventId;
+        gSpecialVar_LastTalked = gObjectEvents[gSelectedObjectEvent].localId;
         gTrainerApproachedPlayer = TRUE;
         return TRUE;
     }
@@ -414,6 +468,8 @@ bool8 CheckForTrainersWantingBattle(void)
         return FALSE;
     }
 }
+
+#undef OPCODE_OFFSET
 
 static u8 CheckTrainer(u8 objectEventId)
 {
@@ -446,9 +502,8 @@ static u8 CheckTrainer(u8 objectEventId)
 
     if (approachDistance != 0)
     {
-        if (scriptPtr[1] == TRAINER_BATTLE_DOUBLE
-            || scriptPtr[1] == TRAINER_BATTLE_REMATCH_DOUBLE
-            || scriptPtr[1] == TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE)
+        TrainerBattleParameter* temp = (TrainerBattleParameter*)(scriptPtr + 1);
+        if (temp->params.isDoubleBattle)
         {
             if (GetMonsStateToDoubles_2() != PLAYER_HAS_TWO_USABLE_MONS)
                 return 0;
@@ -854,6 +909,25 @@ void TryPrepareSecondApproachingTrainer(void)
     {
         gSpecialVar_Result = FALSE;
     }
+}
+
+void PrepareSecondApproachingTrainer(void)
+{
+    if (gApproachingTrainerId == 0)
+    {
+        gApproachingTrainerId++;
+        UnfreezeObjectEvents();
+        FreezeObjectEventsExceptOne(gApproachingTrainers[1].objectEventId);
+    }
+    else
+    {
+        gApproachingTrainerId = 0;
+    }
+}
+
+bool32 TryPrepareSecondApproachingTrainer2(void)
+{
+    return gNoOfApproachingTrainers > 1;
 }
 
 #define sLocalId    data[0]

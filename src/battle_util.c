@@ -11345,7 +11345,7 @@ bool32 ShouldGetStatBadgeBoost(u16 badgeFlag, u32 battler)
             return FALSE;
         else if (GetBattlerSide(battler) != B_SIDE_PLAYER)
             return FALSE;
-        else if (gBattleTypeFlags & BATTLE_TYPE_TRAINER && gTrainerBattleOpponent_A == TRAINER_SECRET_BASE)
+        else if (gBattleTypeFlags & BATTLE_TYPE_TRAINER && TRAINER_BATTLE_PARAM.battleOpponentA == TRAINER_SECRET_BASE)
             return FALSE;
         else if (FlagGet(badgeFlag))
             return TRUE;

@@ -864,7 +864,7 @@ static void InitPyramidChallenge(void)
     }
 
     InitBattlePyramidBagCursorPosition();
-    gTrainerBattleOpponent_A = 0;
+    TRAINER_BATTLE_PARAM.battleOpponentA = 0;
     gBattleOutcome = 0;
 }
 
@@ -1324,11 +1324,11 @@ bool8 GetBattlePyramidTrainerFlag(u8 eventId)
 
 void MarkApproachingPyramidTrainersAsBattled(void)
 {
-    MarkPyramidTrainerAsBattled(gTrainerBattleOpponent_A);
+    MarkPyramidTrainerAsBattled(TRAINER_BATTLE_PARAM.battleOpponentA);
     if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
     {
         gSelectedObjectEvent = GetChosenApproachingTrainerObjectEventId(1);
-        MarkPyramidTrainerAsBattled(gTrainerBattleOpponent_B);
+        MarkPyramidTrainerAsBattled(TRAINER_BATTLE_PARAM.battleOpponentB);
     }
 }
 

@@ -1782,7 +1782,7 @@ static void InitDomeChallenge(void)
         gSaveBlock2Ptr->frontier.domeWinStreaks[battleMode][lvlMode] = 0;
 
     SetDynamicWarp(0, gSaveBlock1Ptr->location.mapGroup, gSaveBlock1Ptr->location.mapNum, WARP_ID_NONE);
-    gTrainerBattleOpponent_A = 0;
+    TRAINER_BATTLE_PARAM.battleOpponentA = 0;
 }
 
 static void GetDomeData(void)
@@ -2182,13 +2182,13 @@ static void BufferDomeRoundText(void)
 static void BufferDomeOpponentName(void)
 {
     StringCopy(gStringVar1, gRoundsStringTable[gSaveBlock2Ptr->frontier.curChallengeBattleNum]);
-    CopyDomeTrainerName(gStringVar2, gTrainerBattleOpponent_A);
+    CopyDomeTrainerName(gStringVar2, TRAINER_BATTLE_PARAM.battleOpponentA);
 }
 
 static void InitDomeOpponentParty(void)
 {
     CalculatePlayerPartyCount();
-    CreateDomeOpponentMons(TrainerIdToTournamentId(gTrainerBattleOpponent_A));
+    CreateDomeOpponentMons(TrainerIdToTournamentId(TRAINER_BATTLE_PARAM.battleOpponentA));
 }
 
 static void CreateDomeOpponentMon(u8 monPartyId, u16 tournamentTrainerId, u8 tournamentMonId, u32 otId)
@@ -2577,7 +2577,7 @@ static int TournamentIdOfOpponent(int roundId, int trainerId)
 
 static void SetDomeOpponentId(void)
 {
-    gTrainerBattleOpponent_A = TrainerIdOfPlayerOpponent();
+    TRAINER_BATTLE_PARAM.battleOpponentA = TrainerIdOfPlayerOpponent();
 }
 
 // While not an issue in-game, this will overflow if called after the player's opponent for the current round has been eliminated
@@ -2588,7 +2588,7 @@ static u16 TrainerIdOfPlayerOpponent(void)
 
 static void SetDomeOpponentGraphicsId(void)
 {
-    SetBattleFacilityTrainerGfxId(gTrainerBattleOpponent_A, 0);
+    SetBattleFacilityTrainerGfxId(TRAINER_BATTLE_PARAM.battleOpponentA, 0);
 }
 
 static void SaveDomeChallenge(void)
@@ -5063,9 +5063,9 @@ static void ResolveDomeRoundWinners(void)
 
     if (gSpecialVar_0x8005 == DOME_PLAYER_WON_MATCH)
     {
-        DOME_TRAINERS[TrainerIdToTournamentId(gTrainerBattleOpponent_A)].isEliminated = TRUE;
-        DOME_TRAINERS[TrainerIdToTournamentId(gTrainerBattleOpponent_A)].eliminatedAt = gSaveBlock2Ptr->frontier.curChallengeBattleNum;
-        gSaveBlock2Ptr->frontier.domeWinningMoves[TrainerIdToTournamentId(gTrainerBattleOpponent_A)] = gBattleResults.lastUsedMovePlayer;
+        DOME_TRAINERS[TrainerIdToTournamentId(TRAINER_BATTLE_PARAM.battleOpponentA)].isEliminated = TRUE;
+        DOME_TRAINERS[TrainerIdToTournamentId(TRAINER_BATTLE_PARAM.battleOpponentA)].eliminatedAt = gSaveBlock2Ptr->frontier.curChallengeBattleNum;
+        gSaveBlock2Ptr->frontier.domeWinningMoves[TrainerIdToTournamentId(TRAINER_BATTLE_PARAM.battleOpponentA)] = gBattleResults.lastUsedMovePlayer;
 
         // If the player's match was the final one, no NPC vs NPC matches to decide
         if (gSaveBlock2Ptr->frontier.curChallengeBattleNum < DOME_FINAL)
@@ -5693,7 +5693,7 @@ static void ReduceDomePlayerPartyToSelectedMons(void)
 static void GetPlayerSeededBeforeOpponent(void)
 {
     // A higher tournament ID is a worse seed
-    if (TrainerIdToTournamentId(gTrainerBattleOpponent_A) > TrainerIdToTournamentId(TRAINER_PLAYER))
+    if (TrainerIdToTournamentId(TRAINER_BATTLE_PARAM.battleOpponentA) > TrainerIdToTournamentId(TRAINER_PLAYER))
         gSpecialVar_Result = 1;
     else
         gSpecialVar_Result = 2;
