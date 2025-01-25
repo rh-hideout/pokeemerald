@@ -221,8 +221,8 @@ static void LoadLogoGfx(void)
     u16 *tilemap, *tileset;
 
     GetBg0TilesDst(&tilemap, &tileset);
-    LZ77UnCompVram(sLogoCenter_Gfx, tileset);
-    LZ77UnCompVram(sLogoCenter_Tilemap, tilemap);
+    DecompressDataWithHeaderVram(sLogoCenter_Gfx, tileset);
+    DecompressDataWithHeaderVram(sLogoCenter_Tilemap, tilemap);
     LoadPalette(sLogo_Pal, BG_PLTT_ID(15), sizeof(sLogo_Pal));
     LoadCompressedSpriteSheet(&sSpriteSheet_LogoCircles);
     LoadSpritePalette(&sSpritePalette_LogoCircles);

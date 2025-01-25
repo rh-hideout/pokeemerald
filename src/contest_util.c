@@ -452,7 +452,7 @@ static void LoadContestResultsBgGfx(void)
     s8 numStars, round2Points;
     u16 tile1, tile2;
 
-    LZDecompressVram(gContestResults_Gfx, (void *)BG_CHAR_ADDR(0));
+    DecompressDataWithHeaderVram(gContestResults_Gfx, (void *)BG_CHAR_ADDR(0));
     CopyToBgTilemapBuffer(3, gContestResults_Bg_Tilemap, 0, 0);
     CopyToBgTilemapBuffer(2, gContestResults_Interface_Tilemap, 0, 0);
     CopyToBgTilemapBuffer(0, gContestResults_WinnerBanner_Tilemap, 0, 0);

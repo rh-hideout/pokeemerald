@@ -1370,7 +1370,7 @@ static bool8 Aqua_Init(struct Task *task)
     InitPatternWeaveTransition(task);
     GetBg0TilesDst(&tilemap, &tileset);
     CpuFill16(0, tilemap, BG_SCREEN_SIZE);
-    LZ77UnCompVram(sTeamAqua_Tileset, tileset);
+    DecompressDataWithHeaderVram(sTeamAqua_Tileset, tileset);
     LoadPalette(sEvilTeam_Palette, BG_PLTT_ID(15), sizeof(sEvilTeam_Palette));
 
     task->tState++;
@@ -1385,7 +1385,7 @@ static bool8 Magma_Init(struct Task *task)
     InitPatternWeaveTransition(task);
     GetBg0TilesDst(&tilemap, &tileset);
     CpuFill16(0, tilemap, BG_SCREEN_SIZE);
-    LZ77UnCompVram(sTeamMagma_Tileset, tileset);
+    DecompressDataWithHeaderVram(sTeamMagma_Tileset, tileset);
     LoadPalette(sEvilTeam_Palette, BG_PLTT_ID(15), sizeof(sEvilTeam_Palette));
 
     task->tState++;
@@ -1445,7 +1445,7 @@ static bool8 Aqua_SetGfx(struct Task *task)
     u16 *tilemap, *tileset;
 
     GetBg0TilesDst(&tilemap, &tileset);
-    LZ77UnCompVram(sTeamAqua_Tilemap, tilemap);
+    DecompressDataWithHeaderVram(sTeamAqua_Tilemap, tilemap);
     SetSinWave((s16*)gScanlineEffectRegBuffers[0], 0, task->tSinIndex, 132, task->tAmplitude, DISPLAY_HEIGHT);
 
     task->tState++;
@@ -1457,7 +1457,7 @@ static bool8 Magma_SetGfx(struct Task *task)
     u16 *tilemap, *tileset;
 
     GetBg0TilesDst(&tilemap, &tileset);
-    LZ77UnCompVram(sTeamMagma_Tilemap, tilemap);
+    DecompressDataWithHeaderVram(sTeamMagma_Tilemap, tilemap);
     SetSinWave((s16*)gScanlineEffectRegBuffers[0], 0, task->tSinIndex, 132, task->tAmplitude, DISPLAY_HEIGHT);
 
     task->tState++;
@@ -1511,8 +1511,8 @@ static bool8 Kyogre_Init(struct Task *task)
 
     GetBg0TilesDst(&tilemap, &tileset);
     CpuFill16(0, tilemap, BG_SCREEN_SIZE);
-    LZ77UnCompVram(sKyogre_Tileset, tileset);
-    LZ77UnCompVram(sKyogre_Tilemap, tilemap);
+    DecompressDataWithHeaderVram(sKyogre_Tileset, tileset);
+    DecompressDataWithHeaderVram(sKyogre_Tilemap, tilemap);
 
     task->tState++;
     return FALSE;
@@ -3300,8 +3300,8 @@ static bool8 Groudon_Init(struct Task *task)
 
     GetBg0TilesDst(&tilemap, &tileset);
     CpuFill16(0, tilemap, BG_SCREEN_SIZE);
-    LZ77UnCompVram(sGroudon_Tileset, tileset);
-    LZ77UnCompVram(sGroudon_Tilemap, tilemap);
+    DecompressDataWithHeaderVram(sGroudon_Tileset, tileset);
+    DecompressDataWithHeaderVram(sGroudon_Tilemap, tilemap);
 
     task->tState++;
     task->tTimer = 0;
@@ -4165,7 +4165,7 @@ static bool8 FrontierLogoWiggle_Init(struct Task *task)
     InitPatternWeaveTransition(task);
     GetBg0TilesDst(&tilemap, &tileset);
     CpuFill16(0, tilemap, BG_SCREEN_SIZE);
-    LZ77UnCompVram(sFrontierLogo_Tileset, tileset);
+    DecompressDataWithHeaderVram(sFrontierLogo_Tileset, tileset);
     LoadPalette(sFrontierLogo_Palette, BG_PLTT_ID(15), sizeof(sFrontierLogo_Palette));
 
     task->tState++;
@@ -4177,7 +4177,7 @@ static bool8 FrontierLogoWiggle_SetGfx(struct Task *task)
     u16 *tilemap, *tileset;
 
     GetBg0TilesDst(&tilemap, &tileset);
-    LZ77UnCompVram(sFrontierLogo_Tilemap, tilemap);
+    DecompressDataWithHeaderVram(sFrontierLogo_Tilemap, tilemap);
     SetSinWave((s16*)gScanlineEffectRegBuffers[0], 0, task->tSinIndex, 132, task->tAmplitude, DISPLAY_HEIGHT);
 
     task->tState++;
@@ -4227,7 +4227,7 @@ static bool8 FrontierLogoWave_Init(struct Task *task)
     REG_BLDALPHA = sTransitionData->BLDALPHA;
     GetBg0TilesDst(&tilemap, &tileset);
     CpuFill16(0, tilemap, BG_SCREEN_SIZE);
-    LZ77UnCompVram(sFrontierLogo_Tileset, tileset);
+    DecompressDataWithHeaderVram(sFrontierLogo_Tileset, tileset);
     LoadPalette(sFrontierLogo_Palette, BG_PLTT_ID(15), sizeof(sFrontierLogo_Palette));
     sTransitionData->cameraY = 0;
 
@@ -4240,7 +4240,7 @@ static bool8 FrontierLogoWave_SetGfx(struct Task *task)
     u16 *tilemap, *tileset;
 
     GetBg0TilesDst(&tilemap, &tileset);
-    LZ77UnCompVram(sFrontierLogo_Tilemap, tilemap);
+    DecompressDataWithHeaderVram(sFrontierLogo_Tilemap, tilemap);
 
     task->tState++;
     return TRUE;
@@ -4372,7 +4372,7 @@ static bool8 FrontierSquares_Init(struct Task *task)
     u16 *tilemap, *tileset;
 
     GetBg0TilesDst(&tilemap, &tileset);
-    LZ77UnCompVram(sFrontierSquares_FilledBg_Tileset, tileset);
+    DecompressDataWithHeaderVram(sFrontierSquares_FilledBg_Tileset, tileset);
 
     FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, 32, 32);
     FillBgTilemapBufferRect(0, 1, 0, 0, MARGIN_SIZE, 32, 15);
@@ -4430,13 +4430,13 @@ static bool8 FrontierSquares_Shrink(struct Task *task)
             break;
         case 1:
             BlendPalettes(PALETTES_ALL & ~(1 << 15), 16, RGB_BLACK);
-            LZ77UnCompVram(sFrontierSquares_EmptyBg_Tileset, tileset);
+            DecompressDataWithHeaderVram(sFrontierSquares_EmptyBg_Tileset, tileset);
             break;
         case 2:
-            LZ77UnCompVram(sFrontierSquares_Shrink1_Tileset, tileset);
+            DecompressDataWithHeaderVram(sFrontierSquares_Shrink1_Tileset, tileset);
             break;
         case 3:
-            LZ77UnCompVram(sFrontierSquares_Shrink2_Tileset, tileset);
+            DecompressDataWithHeaderVram(sFrontierSquares_Shrink2_Tileset, tileset);
             break;
         default:
             FillBgTilemapBufferRect_Palette0(0, 1, 0, 0, 32, 32);
@@ -4467,7 +4467,7 @@ static bool8 FrontierSquaresSpiral_Init(struct Task *task)
     u16 *tilemap, *tileset;
 
     GetBg0TilesDst(&tilemap, &tileset);
-    LZ77UnCompVram(sFrontierSquares_FilledBg_Tileset, tileset);
+    DecompressDataWithHeaderVram(sFrontierSquares_FilledBg_Tileset, tileset);
 
     FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, 32, 32);
     FillBgTilemapBufferRect(0, 1, 0, 0, MARGIN_SIZE, 32, 15);
@@ -4585,7 +4585,7 @@ static bool8 FrontierSquaresScroll_Init(struct Task *task)
     u16 *tilemap, *tileset;
 
     GetBg0TilesDst(&tilemap, &tileset);
-    LZ77UnCompVram(sFrontierSquares_FilledBg_Tileset, tileset);
+    DecompressDataWithHeaderVram(sFrontierSquares_FilledBg_Tileset, tileset);
     FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, 32, 32);
     CopyBgTilemapBufferToVram(0);
     LoadPalette(sFrontierSquares_Palette, BG_PLTT_ID(15), sizeof(sFrontierSquares_Palette));
