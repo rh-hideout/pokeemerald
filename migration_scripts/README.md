@@ -17,6 +17,29 @@ python3 migration_scripts/*.py ; #run the migration script
 
 `*` will need to be replaced with the name of the appropriate script.
 
+## 1.10.x to 1.11.x+
+
+### Battle Frontier Trainers
+
+* Filepath [`migration_scripts/1.11/convert_battle_frontier_trainers.py`](1.11/convert_battle_frontier_trainers.py)
+* Introduced in [Consolidated Frontier teams into battle_frontier_trainers.h #5892](https://github.com/rh-hideout/pokeemerald-expansion/pull/5892)
+
+Moves the Battle Frontier trainer parties from battle_frontier_trainer_mons.h to battle_frontier_trainers.h
+
+#### [src/data/battle_frontier/battle_frontier_trainer_mons.h](../src/data/battle_frontier/battle_frontier_trainer_mons.h)
+```diff
+- const u16 gBattleFrontierTrainerMons_Brady[] =
+- {
+-    FRONTIER_MONS_YOUNGSTER_LASS_1
+- };
+```
+
+#### [src/data/battle_frontier/battle_frontier_trainers.h](../src/data/battle_frontier/battle_frontier_trainers.h)
+```diff
+-    .monSet = gBattleFrontierTrainerMons_Brady
++    .monSet = (const u16[]){FRONTIER_MONS_YOUNGSTER_LASS_1}
+```
+
 ## 1.8.x to 1.9.x+
 
 ### Battle Anim Moves
