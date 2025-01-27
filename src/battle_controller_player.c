@@ -1433,11 +1433,14 @@ static void Task_GiveExpToMon(u8 taskId)
         u8 level = GetMonData(mon, MON_DATA_LEVEL);
         u32 currExp = GetMonData(mon, MON_DATA_EXP);
         u32 nextLvlExp = gExperienceTables[gSpeciesInfo[species].growthRate][level + 1];
+        u32 expAfterGain = currExp + gainedExp;
         u32 oldMaxHP = GetMonData(mon, MON_DATA_MAX_HP);
 
-        if (currExp + gainedExp >= nextLvlExp)
+        if (expAfterGain >= nextLvlExp)
         {
-            SetMonData(mon, MON_DATA_EXP, &nextLvlExp);
+            bool32 combineLevelUpMessages = B_LEVEL_UP_NOTIFICATION >= GEN_9;
+            SetMonData(mon, MON_DATA_EXP, (combineLevelUpMessages) ? &expAfterGain : &nextLvlExp);
+
             CalculateMonStats(mon);
 
             // Reapply Dynamax HP multiplier after stats are recalculated.
@@ -1445,7 +1448,7 @@ static void Task_GiveExpToMon(u8 taskId)
                 DynamaxModifyHPLevelUp(mon, battler, oldMaxHP);
 
             gainedExp -= nextLvlExp - currExp;
-            BtlController_EmitTwoReturnValues(battler, BUFFER_B, RET_VALUE_LEVELED_UP, gainedExp);
+            BtlController_EmitTwoReturnValues(battler, BUFFER_B, RET_VALUE_LEVELED_UP, combineLevelUpMessages ? 0 : gainedExp);
 
             if (IsDoubleBattle() == TRUE
              && (monId == gBattlerPartyIndexes[battler] || monId == gBattlerPartyIndexes[BATTLE_PARTNER(battler)]))
@@ -1489,7 +1492,7 @@ static void Task_PrepareToGiveExpWithExpBar(u8 taskId)
 
 static void Task_GiveExpWithExpBar(u8 taskId)
 {
-    u8 level;
+    u32 level, expAfterGain;
     u16 species;
     u32 oldMaxHP;
     s32 currExp, expOnNextLvl, newExpPoints;
@@ -1516,9 +1519,15 @@ static void Task_GiveExpWithExpBar(u8 taskId)
             oldMaxHP = GetMonData(mon, MON_DATA_MAX_HP);
             expOnNextLvl = gExperienceTables[gSpeciesInfo[species].growthRate][level + 1];
 
-            if (currExp + gainedExp >= expOnNextLvl)
+            expAfterGain = currExp + gainedExp;
+            if (expAfterGain >= expOnNextLvl)
             {
-                SetMonData(mon, MON_DATA_EXP, &expOnNextLvl);
+                bool32 combineLevelUpMessages = (B_LEVEL_UP_NOTIFICATION >= GEN_9);
+                if (combineLevelUpMessages)
+                    SetMonData(mon, MON_DATA_EXP, &expAfterGain);
+                else
+                    SetMonData(mon, MON_DATA_EXP, &expOnNextLvl);
+
                 CalculateMonStats(mon);
 
                 // Reapply Dynamax HP multiplier after stats are recalculated.
@@ -1526,7 +1535,7 @@ static void Task_GiveExpWithExpBar(u8 taskId)
                     DynamaxModifyHPLevelUp(mon, battler, oldMaxHP);
 
                 gainedExp -= expOnNextLvl - currExp;
-                BtlController_EmitTwoReturnValues(battler, BUFFER_B, RET_VALUE_LEVELED_UP, gainedExp);
+                BtlController_EmitTwoReturnValues(battler, BUFFER_B, RET_VALUE_LEVELED_UP, combineLevelUpMessages ? 0 : gainedExp);
                 gTasks[taskId].func = Task_LaunchLvlUpAnim;
             }
             else
