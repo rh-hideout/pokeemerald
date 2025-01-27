@@ -1,4 +1,5 @@
 #include "global.h"
+#include "clock.h"
 #include "event_data.h"
 #include "rtc.h"
 #include "time_events.h"
@@ -15,7 +16,6 @@
 
 static void UpdatePerDay(struct Time *localTime);
 static void UpdatePerMinute(struct Time *localTime);
-static void FormChangeTimeUpdate();
 
 void InitTimeBasedEvents(void)
 {
@@ -72,12 +72,11 @@ static void UpdatePerMinute(struct Time *localTime)
         {
             BerryTreeTimeUpdate(minutes);
             gSaveBlock2Ptr->lastBerryTreeUpdate = *localTime;
-            FormChangeTimeUpdate();
         }
     }
 }
 
-static void FormChangeTimeUpdate()
+void FormChangeTimeUpdate()
 {
     s32 i;
     for (i = 0; i < PARTY_SIZE; i++)

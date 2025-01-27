@@ -1,6 +1,7 @@
 #include "global.h"
 #include "script_movement.h"
 #include "event_object_movement.h"
+#include "event_scripts.h"
 #include "task.h"
 #include "util.h"
 #include "constants/event_objects.h"
@@ -205,13 +206,34 @@ static void ScriptMovement_MoveObjects(u8 taskId)
     }
 }
 
+// from event_object_movement
+#define sTypeFuncId data[1]
+#define sTimer      data[5]
+
 static void ScriptMovement_TakeStep(u8 taskId, u8 moveScrId, u8 objEventId, const u8 *movementScript)
 {
     u8 nextMoveActionId;
+    struct ObjectEvent *obj = &gObjectEvents[objEventId];
 
-    if (ObjectEventIsHeldMovementActive(&gObjectEvents[objEventId])
-     && !ObjectEventClearHeldMovementIfFinished(&gObjectEvents[objEventId]))
+    if (ObjectEventIsHeldMovementActive(obj) &&
+        !ObjectEventClearHeldMovementIfFinished(obj))
+    {
+        // If, while undergoing scripted movement,
+        // a non-player object collides with an active follower pokemon,
+        // put that follower into a pokeball
+        // (sTimer helps limit this expensive check to once per step)
+        if (OW_FOLLOWERS_SCRIPT_MOVEMENT &&
+            gSprites[obj->spriteId].sTimer == 1 &&
+            (objEventId = GetObjectObjectCollidesWith(obj, 0, 0, TRUE)) < OBJECT_EVENTS_COUNT &&
+            // switch `obj` to follower
+            ((obj = &gObjectEvents[objEventId])->movementType == MOVEMENT_TYPE_FOLLOW_PLAYER) &&
+            gSprites[obj->spriteId].sTypeFuncId != 0)
+        {
+            ClearObjectEventMovement(obj, &gSprites[obj->spriteId]);
+            ScriptMovement_StartObjectMovementScript(obj->localId, obj->mapNum, obj->mapGroup, EnterPokeballMovement);
+        }
         return;
+    }
 
     nextMoveActionId = *movementScript;
     if (nextMoveActionId == MOVEMENT_ACTION_STEP_END)
@@ -229,3 +251,5 @@ static void ScriptMovement_TakeStep(u8 taskId, u8 moveScrId, u8 objEventId, cons
     }
 }
 
+#undef sTypeFuncId
+#undef sTimer
