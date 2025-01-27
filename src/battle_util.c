@@ -9,6 +9,7 @@
 #include "battle_setup.h"
 #include "battle_z_move.h"
 #include "battle_gimmick.h"
+#include "generational_changes.h"
 #include "party_menu.h"
 #include "pokemon.h"
 #include "international_string_util.h"
@@ -3473,7 +3474,7 @@ u8 AtkCanceller_UnableToUseMove(u32 moveType)
                 if (gBattleMons[gBattlerAttacker].status2 & STATUS2_CONFUSION)
                 {
                      // confusion dmg
-                    if (RandomPercentage(RNG_CONFUSION, (B_CONFUSION_SELF_DMG_CHANCE >= GEN_7 ? 33 : 50)))
+                    if (RandomPercentage(RNG_CONFUSION, (GetGenConfig(GEN_CONFIG_CONFUSION_SELF_DMG_CHANCE) >= GEN_7 ? 33 : 50)))
                     {
                         gBattleCommunication[MULTISTRING_CHOOSER] = TRUE;
                         gBattlerTarget = gBattlerAttacker;
@@ -10089,7 +10090,7 @@ static inline uq4_12_t GetBurnOrFrostBiteModifier(struct DamageCalculationData *
 static inline uq4_12_t GetCriticalModifier(bool32 isCrit)
 {
     if (isCrit)
-        return B_CRIT_MULTIPLIER >= GEN_6 ? UQ_4_12(1.5) : UQ_4_12(2.0);
+        return GetGenConfig(GEN_CONFIG_CRIT_MULTIPLIER) >= GEN_6 ? UQ_4_12(1.5) : UQ_4_12(2.0);
     return UQ_4_12(1.0);
 }
 
@@ -11675,7 +11676,7 @@ static void SetRandomMultiHitCounter()
 {
     if (GetBattlerHoldEffect(gBattlerAttacker, TRUE) == HOLD_EFFECT_LOADED_DICE)
         gMultiHitCounter = RandomUniform(RNG_LOADED_DICE, 4, 5);
-    else if (B_MULTI_HIT_CHANCE >= GEN_5)
+    else if (GetGenConfig(GEN_CONFIG_MULTI_HIT_CHANCE) >= GEN_5)
         gMultiHitCounter = RandomWeighted(RNG_HITS, 0, 0, 7, 7, 3, 3); // 35%: 2 hits, 35%: 3 hits, 15% 4 hits, 15% 5 hits.
     else
         gMultiHitCounter = RandomWeighted(RNG_HITS, 0, 0, 3, 3, 1, 1); // 37.5%: 2 hits, 37.5%: 3 hits, 12.5% 4 hits, 12.5% 5 hits.
