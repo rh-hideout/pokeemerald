@@ -329,9 +329,8 @@ bool32 IsTruantMonVulnerable(u32 battlerAI, u32 opposingBattler)
     for (i = 0; i < MAX_MON_MOVES; i++)
     {
         u32 move = gBattleResources->battleHistory->usedMoves[opposingBattler][i];
-        if (gMovesInfo[move].effect == EFFECT_PROTECT && move != MOVE_ENDURE)
-            return TRUE;
-        if (gMovesInfo[move].effect == EFFECT_SEMI_INVULNERABLE && AI_IsSlower(battlerAI, opposingBattler, GetAIChosenMove(battlerAI)))
+        if ((gMovesInfo[move].effect == EFFECT_PROTECT && move != MOVE_ENDURE) || move == MOVE_SUBSTITUTE 
+            || (gMovesInfo[move].effect == EFFECT_SEMI_INVULNERABLE && AI_IsSlower(battlerAI, opposingBattler, GetAIChosenMove(battlerAI))))
             return TRUE;
     }
     return FALSE;
