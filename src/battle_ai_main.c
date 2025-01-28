@@ -421,7 +421,7 @@ static void CalcBattlerAiMovesData(struct AiLogicData *aiData, u32 battlerAtk, u
     for (moveIndex = 0; moveIndex < MAX_MON_MOVES; moveIndex++)
     {
         struct SimulatedDamage dmg = {0};
-        u8 effectiveness = AI_EFFECTIVENESS_x0;
+        uq4_12_t effectiveness = Q_4_12(0.0);
         move = moves[moveIndex];
 
         if (move != MOVE_NONE
@@ -722,14 +722,14 @@ static inline void BattleAI_DoAIProcessing(struct AI_ThinkingStruct *aiThink, u3
 void BattleAI_DoAIProcessing_PredictedSwitchin(struct AI_ThinkingStruct *aiThink, struct AiLogicData *aiData, u32 battlerAtk, u32 battlerDef)
 {
     struct BattlePokemon switchoutCandidate = gBattleMons[battlerDef];
-    struct SimulatedDamage simulatedDamageSwitchout[4];
-    u8 effectivenessSwitchout[4];
-    u8 moveAccuracySwitchout[4];
+    struct SimulatedDamage simulatedDamageSwitchout[MAX_MON_MOVES];
+    uq4_12_t effectivenessSwitchout[MAX_MON_MOVES];
+    u8 moveAccuracySwitchout[MAX_MON_MOVES];
 
     struct BattlePokemon switchinCandidate;
-    struct SimulatedDamage simulatedDamageSwitchin[4];
-    u8 effectivenessSwitchin[4];
-    u8 moveAccuracySwitchin[4];
+    struct SimulatedDamage simulatedDamageSwitchin[MAX_MON_MOVES];
+    uq4_12_t effectivenessSwitchin[MAX_MON_MOVES];
+    u8 moveAccuracySwitchin[MAX_MON_MOVES];
 
     struct Pokemon *party = GetBattlerParty(battlerDef);
     struct BattlePokemon *savedBattleMons = AllocSaveBattleMons();
@@ -839,7 +839,7 @@ static s32 AI_CheckBadMove(u32 battlerAtk, u32 battlerDef, u32 move, s32 score)
     s32 moveType;
     u32 moveTarget = GetBattlerMoveTargetType(battlerAtk, move);
     struct AiLogicData *aiData = AI_DATA;
-    u32 effectiveness = aiData->effectiveness[battlerAtk][battlerDef][AI_THINKING_STRUCT->movesetIndex];
+    uq4_12_t effectiveness = aiData->effectiveness[battlerAtk][battlerDef][AI_THINKING_STRUCT->movesetIndex];
     bool32 isDoubleBattle = IsValidDoubleBattle(battlerAtk);
     u32 i;
     u32 weather;
@@ -863,14 +863,12 @@ static s32 AI_CheckBadMove(u32 battlerAtk, u32 battlerDef, u32 move, s32 score)
     if (gBattleStruct->battlerState[battlerDef].commandingDondozo)
         RETURN_SCORE_MINUS(20);
 
-    // check if negates type
-    switch (effectiveness)
+    if (effectiveness == UQ_4_12(0.0))
     {
-    case AI_EFFECTIVENESS_x0:
         RETURN_SCORE_MINUS(20);
-        break;
-    case AI_EFFECTIVENESS_x0_125:
-    case AI_EFFECTIVENESS_x0_25:
+    }
+    else if (effectiveness < UQ_4_12(0.5))
+    {
         switch (moveEffect)
         {
         case EFFECT_FIXED_DAMAGE_ARG:
@@ -889,7 +887,6 @@ static s32 AI_CheckBadMove(u32 battlerAtk, u32 battlerDef, u32 move, s32 score)
         default:
             RETURN_SCORE_MINUS(10);
         }
-        break;
     }
 
     // check non-user target
@@ -922,7 +919,7 @@ static s32 AI_CheckBadMove(u32 battlerAtk, u32 battlerDef, u32 move, s32 score)
                 }
                 break;
             case ABILITY_WONDER_GUARD:
-                if (effectiveness < AI_EFFECTIVENESS_x2)
+                if (effectiveness < UQ_4_12(2.0))
                     RETURN_SCORE_MINUS(20);
                 break;
             case ABILITY_JUSTIFIED:
@@ -1117,7 +1114,7 @@ static s32 AI_CheckBadMove(u32 battlerAtk, u32 battlerDef, u32 move, s32 score)
             if (!(AI_THINKING_STRUCT->aiFlags[battlerAtk] & AI_FLAG_WILL_SUICIDE))
                 ADJUST_SCORE(-2);
 
-            if (effectiveness == AI_EFFECTIVENESS_x0)
+            if (effectiveness == UQ_4_12(0.0))
             {
                 ADJUST_SCORE(-10);
             }
@@ -1452,7 +1449,7 @@ static s32 AI_CheckBadMove(u32 battlerAtk, u32 battlerDef, u32 move, s32 score)
         case EFFECT_FIXED_DAMAGE_ARG:
         case EFFECT_FOCUS_PUNCH:
             // AI_CBM_HighRiskForDamage
-            if (aiData->abilities[battlerDef] == ABILITY_WONDER_GUARD && effectiveness < AI_EFFECTIVENESS_x2)
+            if (aiData->abilities[battlerDef] == ABILITY_WONDER_GUARD && effectiveness < UQ_4_12(2.0))
                 ADJUST_SCORE(-10);
             if (HasDamagingMove(battlerDef) && !((gBattleMons[battlerAtk].status2 & STATUS2_SUBSTITUTE)
              || IsBattlerIncapacitated(battlerDef, aiData->abilities[battlerDef])
@@ -2840,7 +2837,7 @@ static s32 AI_DoubleBattle(u32 battlerAtk, u32 battlerDef, u32 move, s32 score)
     case EFFECT_MAGNET_RISE:
         if (IsBattlerGrounded(battlerAtk)
           && (HasMove(battlerAtkPartner, MOVE_EARTHQUAKE) || HasMove(battlerAtkPartner, MOVE_MAGNITUDE))
-          && (AI_GetMoveEffectiveness(MOVE_EARTHQUAKE, battlerAtk, battlerAtkPartner) != AI_EFFECTIVENESS_x0)) // Doesn't resist ground move
+          && (AI_GetMoveEffectiveness(MOVE_EARTHQUAKE, battlerAtk, battlerAtkPartner) != UQ_4_12(0.0))) // Doesn't resist ground move
         {
             RETURN_SCORE_PLUS(DECENT_EFFECT);   // partner has earthquake or magnitude -> good idea to use magnet rise
         }
@@ -3309,7 +3306,7 @@ static u32 AI_CalcMoveEffectScore(u32 battlerAtk, u32 battlerDef, u32 move)
     u32 moveEffect = GetMoveEffect(move);
     struct AiLogicData *aiData = AI_DATA;
     u32 movesetIndex = AI_THINKING_STRUCT->movesetIndex;
-    u32 effectiveness = aiData->effectiveness[battlerAtk][battlerDef][movesetIndex];
+    uq4_12_t effectiveness = aiData->effectiveness[battlerAtk][battlerDef][movesetIndex];
 
     s32 score = 0;
     u32 predictedMove = aiData->lastUsedMove[battlerDef];
@@ -3323,7 +3320,7 @@ static u32 AI_CalcMoveEffectScore(u32 battlerAtk, u32 battlerDef, u32 move)
         moveEffect = EFFECT_PROTECT;
 
     // check status move preference
-    if (AI_THINKING_STRUCT->aiFlags[battlerAtk] & AI_FLAG_PREFER_STATUS_MOVES && IsBattleMoveStatus(move) && effectiveness != AI_EFFECTIVENESS_x0)
+    if (AI_THINKING_STRUCT->aiFlags[battlerAtk] & AI_FLAG_PREFER_STATUS_MOVES && IsBattleMoveStatus(move) && effectiveness != UQ_4_12(0.0))
         ADJUST_SCORE(10);
 
     // check thawing moves
@@ -3346,7 +3343,7 @@ static u32 AI_CalcMoveEffectScore(u32 battlerAtk, u32 battlerDef, u32 move)
         IncreaseSleepScore(battlerAtk, battlerDef, move, &score);
         break;
     case EFFECT_ABSORB:
-        if (aiData->holdEffects[battlerAtk] == HOLD_EFFECT_BIG_ROOT && effectiveness >= AI_EFFECTIVENESS_x1)
+        if (aiData->holdEffects[battlerAtk] == HOLD_EFFECT_BIG_ROOT && effectiveness >= UQ_4_12(1.0))
             ADJUST_SCORE(DECENT_EFFECT);
         break;
     case EFFECT_EXPLOSION:
@@ -4488,7 +4485,7 @@ static u32 AI_CalcMoveEffectScore(u32 battlerAtk, u32 battlerDef, u32 move)
         break;
     case EFFECT_MAGNET_RISE:
         if (IsBattlerGrounded(battlerAtk) && HasDamagingMoveOfType(battlerDef, TYPE_ELECTRIC)
-          && !(AI_GetMoveEffectiveness(MOVE_EARTHQUAKE, battlerDef, battlerAtk) == AI_EFFECTIVENESS_x0)) // Doesn't resist ground move
+          && !(effectiveness == UQ_4_12(0.0))) // Doesn't resist ground move
         {
             if (AI_IsFaster(battlerAtk, battlerDef, move)) // Attacker goes first
            {
@@ -4506,7 +4503,7 @@ static u32 AI_CalcMoveEffectScore(u32 battlerAtk, u32 battlerDef, u32 move)
         break;
     case EFFECT_CAMOUFLAGE:
         if (predictedMove != MOVE_NONE && AI_IsFaster(battlerAtk, battlerDef, move) // Attacker goes first
-         && !IsBattleMoveStatus(move) && AI_GetMoveEffectiveness(predictedMove, battlerDef, battlerAtk) != AI_EFFECTIVENESS_x0)
+         && !IsBattleMoveStatus(move) && effectiveness != UQ_4_12(0.0))
             ADJUST_SCORE(DECENT_EFFECT);
         break;
     case EFFECT_TOXIC_THREAD:
@@ -5408,7 +5405,7 @@ static s32 AI_PredictSwitch(u32 battlerAtk, u32 battlerDef, u32 move, s32 score)
     u32 aiHazardFlags = gSideStatuses[GetBattlerSide(battlerAtk)] & (SIDE_STATUS_HAZARDS_ANY);
     u32 moveEffect = gMovesInfo[move].effect;
     struct AiLogicData *aiData = AI_DATA;
-    u32 effectiveness = aiData->effectiveness[battlerAtk][battlerDef][AI_THINKING_STRUCT->movesetIndex];
+    uq4_12_t effectiveness = aiData->effectiveness[battlerAtk][battlerDef][AI_THINKING_STRUCT->movesetIndex];
 
     // Switch benefit
     switch (moveEffect)
@@ -5429,7 +5426,7 @@ static s32 AI_PredictSwitch(u32 battlerAtk, u32 battlerDef, u32 move, s32 score)
         ADJUST_SCORE(DECENT_EFFECT);
         if (AI_THINKING_STRUCT->aiFlags[battlerAtk] & AI_FLAG_CHECK_BAD_MOVE)
         {
-            if (aiData->abilities[battlerDef] == ABILITY_WONDER_GUARD && effectiveness < AI_EFFECTIVENESS_x2)
+            if (aiData->abilities[battlerDef] == ABILITY_WONDER_GUARD && effectiveness < UQ_4_12(2.0))
                 ADJUST_SCORE(10);
             if (HasDamagingMove(battlerDef) && !((gBattleMons[battlerAtk].status2 & STATUS2_SUBSTITUTE)
              || IsBattlerIncapacitated(battlerDef, aiData->abilities[battlerDef])

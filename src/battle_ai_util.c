@@ -23,8 +23,6 @@
 #include "constants/moves.h"
 #include "constants/items.h"
 
-static u32 AI_GetEffectiveness(uq4_12_t multiplier);
-
 // Functions
 u32 GetDmgRollType(u32 battlerAtk)
 {
@@ -387,7 +385,7 @@ bool32 MovesWithCategoryUnusable(u32 attacker, u32 target, u32 category)
 }
 
 // To save computation time this function has 2 variants. One saves, sets and restores battlers, while the other doesn't.
-struct SimulatedDamage AI_CalcDamageSaveBattlers(u32 move, u32 battlerAtk, u32 battlerDef, u8 *typeEffectiveness, bool32 considerZPower, enum DamageRollType rollType)
+struct SimulatedDamage AI_CalcDamageSaveBattlers(u32 move, u32 battlerAtk, u32 battlerDef, uq4_12_t *typeEffectiveness, bool32 considerZPower, enum DamageRollType rollType)
 {
     struct SimulatedDamage dmg;
 
@@ -395,7 +393,7 @@ struct SimulatedDamage AI_CalcDamageSaveBattlers(u32 move, u32 battlerAtk, u32 b
     SaveBattlerData(battlerDef);
     SetBattlerData(battlerAtk);
     SetBattlerData(battlerDef);
-    dmg = AI_CalcDamage(move, battlerAtk, battlerDef,  typeEffectiveness, considerZPower, AI_GetWeather(AI_DATA), rollType);
+    dmg = AI_CalcDamage(move, battlerAtk, battlerDef, typeEffectiveness, considerZPower, AI_GetWeather(AI_DATA), rollType);
     RestoreBattlerData(battlerAtk);
     RestoreBattlerData(battlerDef);
     return dmg;
@@ -631,7 +629,7 @@ static inline void CalcDynamicMoveDamage(struct DamageCalculationData *damageCal
     *minimumDamage = minimum;
 }
 
-struct SimulatedDamage AI_CalcDamage(u32 move, u32 battlerAtk, u32 battlerDef, u8 *typeEffectiveness, bool32 considerZPower, u32 weather, enum DamageRollType rollType)
+struct SimulatedDamage AI_CalcDamage(u32 move, u32 battlerAtk, u32 battlerDef, uq4_12_t *typeEffectiveness, bool32 considerZPower, u32 weather, enum DamageRollType rollType)
 {
     struct SimulatedDamage simDamage;
     s32 moveType;
@@ -755,7 +753,7 @@ struct SimulatedDamage AI_CalcDamage(u32 move, u32 battlerAtk, u32 battlerDef, u
     }
 
     // convert multiper to AI_EFFECTIVENESS_xX
-    *typeEffectiveness = AI_GetEffectiveness(effectivenessMultiplier);
+    *typeEffectiveness = effectivenessMultiplier;
 
     // Undo temporary settings
     gBattleStruct->dynamicMoveType = 0;
@@ -1040,7 +1038,7 @@ u32 GetCurrDamageHpPercent(u32 battlerAtk, u32 battlerDef)
     return (bestDmg * 100) / gBattleMons[battlerDef].maxHP;
 }
 
-uq4_12_t AI_GetTypeEffectiveness(u32 move, u32 battlerAtk, u32 battlerDef)
+uq4_12_t AI_GetMoveEffectiveness(u32 move, u32 battlerAtk, u32 battlerDef)
 {
     uq4_12_t typeEffectiveness;
     u32 moveType;
@@ -1060,35 +1058,6 @@ uq4_12_t AI_GetTypeEffectiveness(u32 move, u32 battlerAtk, u32 battlerDef)
     RestoreBattlerData(battlerDef);
 
     return typeEffectiveness;
-}
-
-u32 AI_GetMoveEffectiveness(u32 move, u32 battlerAtk, u32 battlerDef)
-{
-    return AI_GetEffectiveness(AI_GetTypeEffectiveness(move, battlerAtk, battlerDef));
-}
-
-static u32 AI_GetEffectiveness(uq4_12_t multiplier)
-{
-    switch (multiplier)
-    {
-    case UQ_4_12(0.0):
-        return AI_EFFECTIVENESS_x0;
-    case UQ_4_12(0.125):
-        return AI_EFFECTIVENESS_x0_125;
-    case UQ_4_12(0.25):
-        return AI_EFFECTIVENESS_x0_25;
-    case UQ_4_12(0.5):
-        return AI_EFFECTIVENESS_x0_5;
-    case UQ_4_12(1.0):
-    default:
-        return AI_EFFECTIVENESS_x1;
-    case UQ_4_12(2.0):
-        return AI_EFFECTIVENESS_x2;
-    case UQ_4_12(4.0):
-        return AI_EFFECTIVENESS_x4;
-    case UQ_4_12(8.0):
-        return AI_EFFECTIVENESS_x8;
-    }
 }
 
 /* Checks to see if AI will move ahead of another battler
@@ -3012,7 +2981,7 @@ bool32 ShouldPoisonSelf(u32 battler, u32 ability)
 bool32 AI_CanPoison(u32 battlerAtk, u32 battlerDef, u32 defAbility, u32 move, u32 partnerMove)
 {
     if (!CanBePoisoned(battlerAtk, battlerDef, GetBattlerAbility(battlerDef))
-      || AI_DATA->effectiveness[battlerAtk][battlerDef][AI_THINKING_STRUCT->movesetIndex] == AI_EFFECTIVENESS_x0
+      || AI_DATA->effectiveness[battlerAtk][battlerDef][AI_THINKING_STRUCT->movesetIndex] == UQ_4_12(0.0)
       || DoesSubstituteBlockMove(battlerAtk, battlerDef, move)
       || PartnerMoveEffectIsStatusSameTarget(BATTLE_PARTNER(battlerAtk), battlerDef, partnerMove))
         return FALSE;
@@ -3027,7 +2996,7 @@ bool32 AI_CanPoison(u32 battlerAtk, u32 battlerDef, u32 defAbility, u32 move, u3
 bool32 AI_CanParalyze(u32 battlerAtk, u32 battlerDef, u32 defAbility, u32 move, u32 partnerMove)
 {
     if (!CanBeParalyzed(battlerDef, defAbility)
-      || AI_DATA->effectiveness[battlerAtk][battlerDef][AI_THINKING_STRUCT->movesetIndex] == AI_EFFECTIVENESS_x0
+      || AI_DATA->effectiveness[battlerAtk][battlerDef][AI_THINKING_STRUCT->movesetIndex] == UQ_4_12(0.0)
       || gSideStatuses[GetBattlerSide(battlerDef)] & SIDE_STATUS_SAFEGUARD
       || DoesSubstituteBlockMove(battlerAtk, battlerDef, move)
       || PartnerMoveEffectIsStatusSameTarget(BATTLE_PARTNER(battlerAtk), battlerDef, partnerMove))
@@ -3089,7 +3058,7 @@ bool32 ShouldBurnSelf(u32 battler, u32 ability)
 bool32 AI_CanBurn(u32 battlerAtk, u32 battlerDef, u32 defAbility, u32 battlerAtkPartner, u32 move, u32 partnerMove)
 {
     if (!CanBeBurned(battlerDef, defAbility)
-      || AI_DATA->effectiveness[battlerAtk][battlerDef][AI_THINKING_STRUCT->movesetIndex] == AI_EFFECTIVENESS_x0
+      || AI_DATA->effectiveness[battlerAtk][battlerDef][AI_THINKING_STRUCT->movesetIndex] == UQ_4_12(0.0)
       || DoesSubstituteBlockMove(battlerAtk, battlerDef, move)
       || PartnerMoveEffectIsStatusSameTarget(battlerAtkPartner, battlerDef, partnerMove))
     {
@@ -3101,7 +3070,7 @@ bool32 AI_CanBurn(u32 battlerAtk, u32 battlerDef, u32 defAbility, u32 battlerAtk
 bool32 AI_CanGiveFrostbite(u32 battlerAtk, u32 battlerDef, u32 defAbility, u32 battlerAtkPartner, u32 move, u32 partnerMove)
 {
     if (!AI_CanGetFrostbite(battlerDef, defAbility)
-      || AI_DATA->effectiveness[battlerAtk][battlerDef][AI_THINKING_STRUCT->movesetIndex] == AI_EFFECTIVENESS_x0
+      || AI_DATA->effectiveness[battlerAtk][battlerDef][AI_THINKING_STRUCT->movesetIndex] == UQ_4_12(0.0)
       || DoesSubstituteBlockMove(battlerAtk, battlerDef, move)
       || PartnerMoveEffectIsStatusSameTarget(battlerAtkPartner, battlerDef, partnerMove))
     {
@@ -3113,7 +3082,7 @@ bool32 AI_CanGiveFrostbite(u32 battlerAtk, u32 battlerDef, u32 defAbility, u32 b
 bool32 AI_CanBeInfatuated(u32 battlerAtk, u32 battlerDef, u32 defAbility)
 {
     if ((gBattleMons[battlerDef].status2 & STATUS2_INFATUATION)
-      || AI_DATA->effectiveness[battlerAtk][battlerDef][AI_THINKING_STRUCT->movesetIndex] == AI_EFFECTIVENESS_x0
+      || AI_DATA->effectiveness[battlerAtk][battlerDef][AI_THINKING_STRUCT->movesetIndex] == UQ_4_12(0.0)
       || defAbility == ABILITY_OBLIVIOUS
       || !AreBattlersOfOppositeGender(battlerAtk, battlerDef)
       || AI_IsAbilityOnSide(battlerDef, ABILITY_AROMA_VEIL))
@@ -3575,7 +3544,7 @@ void FreeRestoreBattleMons(struct BattlePokemon *savedBattleMons)
 s32 AI_CalcPartyMonDamage(u32 move, u32 battlerAtk, u32 battlerDef, struct BattlePokemon switchinCandidate, bool32 isPartyMonAttacker, enum DamageRollType rollType)
 {
     struct SimulatedDamage dmg;
-    u8 effectiveness;
+    uq4_12_t effectiveness;
     struct BattlePokemon *savedBattleMons = AllocSaveBattleMons();
 
     if (isPartyMonAttacker)
@@ -4048,7 +4017,7 @@ bool32 ShouldUseZMove(u32 battlerAtk, u32 battlerDef, u32 chosenMove)
 
     if (IsViableZMove(battlerAtk, chosenMove))
     {
-        u8 effectiveness;
+        uq4_12_t effectiveness;
         u32 zMove = GetUsableZMove(battlerAtk, chosenMove);
         struct SimulatedDamage dmg;
 

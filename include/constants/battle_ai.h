@@ -14,16 +14,6 @@
 #define AI_TYPE2_USER 3
 #define AI_TYPE_MOVE 4
 
-// type effectiveness
-#define AI_EFFECTIVENESS_x8     7
-#define AI_EFFECTIVENESS_x4     6
-#define AI_EFFECTIVENESS_x2     5
-#define AI_EFFECTIVENESS_x1     4
-#define AI_EFFECTIVENESS_x0_5   3
-#define AI_EFFECTIVENESS_x0_25  2
-#define AI_EFFECTIVENESS_x0_125 1
-#define AI_EFFECTIVENESS_x0     0
-
 // AI Flags. Most run specific functions to update score, new flags are used for internal logic in other scripts
 // See docs/ai_flags.md for more details.
 #define AI_FLAG_CHECK_BAD_MOVE              (1 << 0)  // AI will avoid using moves that are likely to fail or be ineffective in the current situation.
