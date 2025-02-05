@@ -4160,7 +4160,7 @@ void SetupAISwitchingData(u32 battler, bool32 isAiRisky)
         AI_DATA->aiSwitchPredictionInProgress = FALSE;
 
         // Determine whether AI will use predictions this turn
-        AI_DATA->predictingSwitch = RandomPercentage(RNG_AI_PREDICT_SWITCH, 50);
+        AI_DATA->predictingSwitch = RandomPercentage(RNG_AI_PREDICT_SWITCH, PREDICT_SWITCH_CHANCE);
     }
 
     // AI's data
