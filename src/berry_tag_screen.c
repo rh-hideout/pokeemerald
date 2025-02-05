@@ -335,12 +335,12 @@ static bool8 LoadBerryTagGfx(void)
     case 1:
         if (FreeTempTileDataBuffersIfPossible() != TRUE)
         {
-            LZDecompressWram(gBerryTag_Gfx, sBerryTag->tilemapBuffers[0]);
+            DecompressDataWithHeaderWram(gBerryTag_Gfx, sBerryTag->tilemapBuffers[0]);
             sBerryTag->gfxState++;
         }
         break;
     case 2:
-        LZDecompressWram(gBerryTag_Pal, sBerryTag->tilemapBuffers[2]);
+        DecompressDataWithHeaderWram(gBerryTag_Pal, sBerryTag->tilemapBuffers[2]);
         sBerryTag->gfxState++;
         break;
     case 3:

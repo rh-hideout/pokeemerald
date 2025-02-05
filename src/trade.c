@@ -3189,7 +3189,7 @@ static void SetTradeSequenceBgGpuRegs(u8 state)
                                           DISPCNT_OBJ_1D_MAP |
                                           DISPCNT_BG1_ON |
                                           DISPCNT_OBJ_ON);
-            LZ77UnCompVram(sWirelessCloseup_Map, (void *) BG_SCREEN_ADDR(5));
+            DecompressDataWithHeaderVram(sWirelessCloseup_Map, (void *) BG_SCREEN_ADDR(5));
             BlendPalettes(0x8, 16, RGB_BLACK);
         }
         else
@@ -3204,8 +3204,8 @@ static void SetTradeSequenceBgGpuRegs(u8 state)
         break;
     case 3:
         LoadPalette(sWirelessSignalNone_Pal, BG_PLTT_ID(3), PLTT_SIZE_4BPP);
-        LZ77UnCompVram(sWirelessSignal_Gfx, (void *) BG_CHAR_ADDR(1));
-        LZ77UnCompVram(sWirelessSignal_Tilemap, (void *) BG_SCREEN_ADDR(18));
+        DecompressDataWithHeaderVram(sWirelessSignal_Gfx, (void *) BG_CHAR_ADDR(1));
+        DecompressDataWithHeaderVram(sWirelessSignal_Tilemap, (void *) BG_SCREEN_ADDR(18));
         sTradeAnim->bg2vofs = 80;
         SetGpuReg(REG_OFFSET_DISPCNT, DISPCNT_MODE_0 |
                                       DISPCNT_OBJ_1D_MAP |

@@ -1334,7 +1334,7 @@ static bool8 LoadUsePokeblockMenuGfx(void)
         sMonFrame_TilemapPtr = Alloc(1280);
         break;
     case 2:
-        LZ77UnCompVram(sMonFrame_Tilemap, sMonFrame_TilemapPtr);
+        DecompressDataWithHeaderVram(sMonFrame_Tilemap, sMonFrame_TilemapPtr);
         break;
     case 3:
         LoadBgTiles(3, sMonFrame_Gfx, 224, 0);
@@ -1347,10 +1347,10 @@ static bool8 LoadUsePokeblockMenuGfx(void)
         sMenu->curMonXOffset = -80;
         break;
     case 6:
-        LZ77UnCompVram(gUsePokeblockGraph_Gfx, sGraph_Gfx);
+        DecompressDataWithHeaderVram(gUsePokeblockGraph_Gfx, sGraph_Gfx);
         break;
     case 7:
-        LZ77UnCompVram(gUsePokeblockGraph_Tilemap, sGraph_Tilemap);
+        DecompressDataWithHeaderVram(gUsePokeblockGraph_Tilemap, sGraph_Tilemap);
         LoadPalette(gUsePokeblockGraph_Pal, BG_PLTT_ID(2), PLTT_SIZE_4BPP);
         break;
     case 8:
@@ -1362,7 +1362,7 @@ static bool8 LoadUsePokeblockMenuGfx(void)
         CopyBgTilemapBufferToVram(1);
         break;
     case 10:
-        LZ77UnCompVram(sGraphData_Tilemap, sMenu->tilemapBuffer);
+        DecompressDataWithHeaderVram(sGraphData_Tilemap, sMenu->tilemapBuffer);
         break;
     case 11:
         LoadBgTilemap(2, sMenu->tilemapBuffer, 1280, 0);

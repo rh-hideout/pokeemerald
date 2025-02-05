@@ -1253,7 +1253,7 @@ static void LoadCheckPageTrainerPic(struct Pokenav_MatchCallGfx *gfx)
     if (trainerPic >= 0)
     {
         DecompressPicFromTable(&gTrainerSprites[trainerPic].frontPic, gfx->trainerPicGfx);
-        LZ77UnCompWram(gTrainerSprites[trainerPic].palette.data, gfx->trainerPicPal);
+        DecompressDataWithHeaderWram(gTrainerSprites[trainerPic].palette.data, gfx->trainerPicPal);
         cursor = RequestDma3Copy(gfx->trainerPicGfx, gfx->trainerPicGfxPtr, sizeof(gfx->trainerPicGfx), 1);
         LoadPalette(gfx->trainerPicPal, gfx->trainerPicPalOffset, sizeof(gfx->trainerPicPal));
         gfx->trainerPicSprite->data[0] = 0;
