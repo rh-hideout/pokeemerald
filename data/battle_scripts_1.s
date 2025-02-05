@@ -1291,11 +1291,16 @@ BattleScript_VCreateStatLossRet:
 	return
 
 BattleScript_SpectralThiefSteal::
+	setbyte sB_ANIM_TURN, 1
+	playmoveanimation BS_ATTACKER, MOVE_SPECTRAL_THIEF
+	waitanimation
+	setbyte sB_ANIM_TURN, 0
 	printstring STRINGID_SPECTRALTHIEFSTEAL
 	waitmessage B_WAIT_TIME_LONG
 	setbyte sB_ANIM_ARG2, 0
 	playanimation BS_ATTACKER, B_ANIM_STATS_CHANGE, sB_ANIM_ARG1
 	spectralthiefprintstats
+	flushtextbox
 	return
 
 BattleScript_EffectPartingShot::

@@ -2291,6 +2291,11 @@ static void Cmd_attackanimation(void)
             gBattlescriptCurrInstr = cmd->nextInstr;
             return;
         }
+
+        // handle special move animations
+        if (gMovesInfo[gCurrentMove].effect == EFFECT_EXPANDING_FORCE && moveTarget & MOVE_TARGET_BOTH)
+            gBattleScripting.animTurn = 1;
+
         if (!(gMoveResultFlags & MOVE_RESULT_NO_EFFECT))
         {
             u8 multihit;
