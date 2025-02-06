@@ -600,8 +600,13 @@ void BS_SetMaxMoveEffect(void)
                     msg = B_MSG_STARTED_SANDSTORM;
                     break;
                 case MAX_EFFECT_HAIL:
+#if B_PREFERRED_ICE_WEATHER == B_ICE_WEATHER_SNOW
+                    weather = BATTLE_WEATHER_SNOW;
+                    msg = B_MSG_STARTED_SNOW;
+#else
                     weather = BATTLE_WEATHER_HAIL;
                     msg = B_MSG_STARTED_HAIL;
+#endif
                     break;
             }
             if (TryChangeBattleWeather(gBattlerAttacker, weather, FALSE))
