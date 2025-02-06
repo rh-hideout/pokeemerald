@@ -416,8 +416,10 @@
 #define MOVE_EFFECT_LIGHT_SCREEN        85
 #define MOVE_EFFECT_SALT_CURE           86
 #define MOVE_EFFECT_EERIE_SPELL         87
+#define MOVE_EFFECT_FLING_MENTAL_HERB   88
+#define MOVE_EFFECT_FLING_WHITE_HERB    89
 
-#define NUM_MOVE_EFFECTS                88
+#define NUM_MOVE_EFFECTS                90
 
 #define MOVE_EFFECT_AFFECTS_USER        0x2000
 #define MOVE_EFFECT_CERTAIN             0x4000

@@ -2293,6 +2293,12 @@
 	.4byte \jumpInstr
 	.endm
 
+	.macro jumpiflastuseditemflingeffect battler:req, flingEffect:req, jumpInstr:req
+	various \battler, VARIOUS_JUMP_IF_LAST_USED_ITEM_HOLD_EFFECT
+	.byte \holdEffect
+	.4byte \jumpInstr
+	.endm
+
 	.macro savebattleritem battler:req
 	various \battler, VARIOUS_SAVE_BATTLER_ITEM
 	.endm

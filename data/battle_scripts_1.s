@@ -758,13 +758,13 @@ BattleScript_EffectFling::
 	waitmessage B_WAIT_TIME_MED
 	jumpiflastuseditemberry BattleScript_EffectFlingConsumeBerry
 	jumpifability BS_TARGET, ABILITY_SHIELD_DUST, BattleScript_FlingBlockedByShieldDust
-	jumpiflastuseditemholdeffect BS_ATTACKER, HOLD_EFFECT_FLAME_ORB, BattleScript_FlingFlameOrb
-	jumpiflastuseditemholdeffect BS_ATTACKER, HOLD_EFFECT_FLINCH, BattleScript_FlingFlinch
-	jumpiflastuseditemholdeffect BS_ATTACKER, HOLD_EFFECT_LIGHT_BALL, BattleScript_FlingLightBall
-	jumpiflastuseditemholdeffect BS_ATTACKER, HOLD_EFFECT_MENTAL_HERB, BattleScript_FlingMentalHerb
-	jumpiflastuseditemholdeffect BS_ATTACKER, HOLD_EFFECT_POISON_POWER, BattleScript_FlingPoisonBarb
-	jumpiflastuseditemholdeffect BS_ATTACKER, HOLD_EFFECT_TOXIC_ORB, BattleScript_FlingToxicOrb
-	jumpiflastuseditemholdeffect BS_ATTACKER, HOLD_EFFECT_RESTORE_STATS, BattleScript_FlingWhiteHerb
+	jumpiflastuseditemflingeffect BS_ATTACKER, MOVE_EFFECT_BURN, BattleScript_FlingBurn
+	jumpiflastuseditemflingeffect BS_ATTACKER, MOVE_EFFECT_FLINCH, BattleScript_FlingFlinch
+	jumpiflastuseditemflingeffect BS_ATTACKER, MOVE_EFFECT_PARALYSIS, BattleScript_FlingParalysis
+	jumpiflastuseditemflingeffect BS_ATTACKER, MOVE_EFFECT_FLING_MENTAL_HERB, BattleScript_FlingMentalHerb
+	jumpiflastuseditemflingeffect BS_ATTACKER, MOVE_EFFECT_POISON, BattleScript_FlingPoison
+	jumpiflastuseditemflingeffect BS_ATTACKER, MOVE_EFFECT_TOXIC, BattleScript_FlingToxicOrb
+	jumpiflastuseditemflingeffect BS_ATTACKER, MOVE_EFFECT_FLING_WHITE_HERB, BattleScript_FlingWhiteHerb
 	goto BattleScript_FlingEnd
 BattleScript_EffectFlingConsumeBerry:
 	savebattleritem BS_TARGET
@@ -789,13 +789,13 @@ BattleScript_FlingBlockedByShieldDust::
 	waitmessage B_WAIT_TIME_LONG
 	goto BattleScript_FlingEnd
 
-BattleScript_FlingFlameOrb:
+BattleScript_FlingBurn:
 	seteffectsecondary MOVE_EFFECT_BURN
 	goto BattleScript_FlingEnd
 BattleScript_FlingFlinch:
 	seteffectsecondary MOVE_EFFECT_FLINCH
 	goto BattleScript_FlingEnd
-BattleScript_FlingLightBall:
+BattleScript_FlingParalysis:
 	seteffectsecondary MOVE_EFFECT_PARALYSIS
 	goto BattleScript_FlingEnd
 BattleScript_FlingMentalHerb:
@@ -808,7 +808,7 @@ BattleScript_FlingMentalHerb:
 	updatestatusicon BS_ATTACKER
 	restoretarget
 	goto BattleScript_FlingEnd
-BattleScript_FlingPoisonBarb:
+BattleScript_FlingPoison:
 	seteffectsecondary MOVE_EFFECT_POISON
 	goto BattleScript_FlingEnd
 BattleScript_FlingToxicOrb:

@@ -2296,12 +2296,11 @@ static s32 AI_CheckBadMove(u32 battlerAtk, u32 battlerDef, u32 move, s32 score)
             }
             else
             {
-                /* TODO Fling
-                u8 effect = gFlingTable[gBattleMons[battlerAtk].item].effect;
+                u8 effect = gItemsInfo[gBattleMons[battlerAtk].item].flingEffect;
                 switch (effect)
                 {
                 case MOVE_EFFECT_BURN:
-                    if (!AI_CanBurn(battlerAtk, battlerDef, BATTLE_PARTNER(battlerAtk), move, aiData->partnerMove))
+                    if (!AI_CanBurn(battlerAtk, battlerDef, aiData->abilities[battlerDef], BATTLE_PARTNER(battlerAtk), move, aiData->partnerMove))
                         ADJUST_SCORE(-10);
                     break;
                 case MOVE_EFFECT_PARALYSIS:
@@ -2316,12 +2315,16 @@ static s32 AI_CheckBadMove(u32 battlerAtk, u32 battlerDef, u32 move, s32 score)
                     if (!AI_CanPoison(battlerAtk, battlerDef, aiData->abilities[battlerDef], move, aiData->partnerMove))
                         ADJUST_SCORE(-10);
                     break;
-                case MOVE_EFFECT_FREEZE:
-                    if (!CanBeFrozen(battlerDef, TRUE)
-                     || MoveBlockedBySubstitute(move, battlerAtk, battlerDef))
-                        ADJUST_SCORE(-10);
+                case MOVE_EFFECT_FLINCH:
+                    //TODO
                     break;
-                }*/
+                case MOVE_EFFECT_FLING_MENTAL_HERB:
+                    //TODO
+                    break;
+                case MOVE_EFFECT_FLING_WHITE_HERB:
+                    //TODO
+                    break;
+                }
             }
             break;
         case EFFECT_EMBARGO:
@@ -4271,14 +4274,11 @@ static u32 AI_CalcMoveEffectScore(u32 battlerAtk, u32 battlerDef, u32 move)
             ADJUST_SCORE(DECENT_EFFECT);
         break;
     case EFFECT_FLING:
-        /* TODO
-        switch (gFlingTable[aiData->items[battlerAtk]].effect)
+        u8 effect = gItemsInfo[gBattleMons[battlerAtk].item].flingEffect;
+        switch (effect)
         {
         case MOVE_EFFECT_BURN:
             IncreaseBurnScore(battlerAtk, battlerDef, move, &score);
-            break;
-        case MOVE_EFFECT_FLINCH:
-            score += ShouldTryToFlinch(battlerAtk, battlerDef, aiData->abilities[battlerAtk], aiData->abilities[battlerDef], move);
             break;
         case MOVE_EFFECT_PARALYSIS:
             IncreaseParalyzeScore(battlerAtk, battlerDef, move, &score);
@@ -4287,11 +4287,16 @@ static u32 AI_CalcMoveEffectScore(u32 battlerAtk, u32 battlerDef, u32 move)
         case MOVE_EFFECT_TOXIC:
             IncreasePoisonScore(battlerAtk, battlerDef, move, &score);
             break;
-        case MOVE_EFFECT_FREEZE:
-            if (AI_CanFreeze(battlerAtk, battlerDef))
-                ADJUST_SCORE(GOOD_EFFECT);
+        case MOVE_EFFECT_FLINCH:
+            score += ShouldTryToFlinch(battlerAtk, battlerDef, aiData->abilities[battlerAtk], aiData->abilities[battlerDef], move);
             break;
-        }*/
+        case MOVE_EFFECT_FLING_MENTAL_HERB:
+            //TODO
+            break;
+        case MOVE_EFFECT_FLING_WHITE_HERB:
+            //TODO
+            break;
+        }
         break;
     case EFFECT_EMBARGO:
         if (aiData->holdEffects[battlerDef] != HOLD_EFFECT_NONE)

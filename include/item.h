@@ -25,6 +25,7 @@ struct Item
     u8 type;
     u8 battleUsage;
     u8 flingPower;
+    u8 flingEffect;
     const u32 *iconPic;
     const u32 *iconPalette;
 };
