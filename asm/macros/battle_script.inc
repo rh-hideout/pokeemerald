@@ -1751,6 +1751,16 @@
 	callnative BS_RemoveTerrain
 	.endm
 
+	.macro tryspectralthiefsteal jumpInstr:req
+	callnative BS_TrySpectralThiefSteal
+	.4byte \jumpInstr
+	.endm
+
+	.macro spectralthiefprintstats
+	callnative BS_SpectralThiefPrintStats
+	.endm
+
+
 @ various command changed to more readable macros
 	.macro cancelmultiturnmoves battler:req
 	various \battler, VARIOUS_CANCEL_MULTI_TURN_MOVES
@@ -2043,10 +2053,6 @@
 
 	.macro setpowder battler:req
 	various \battler, VARIOUS_SET_POWDER
-	.endm
-
-	.macro spectralthiefprintstats
-	various BS_ATTACKER, VARIOUS_SPECTRAL_THIEF
 	.endm
 
 	.macro bringdownairbornebattler battler:req

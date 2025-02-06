@@ -3662,52 +3662,6 @@ void SetMoveEffect(bool32 primary, bool32 certain)
                         gBattlescriptCurrInstr = BattleScript_MoveEffectFeint;
                 }
                 break;
-            case MOVE_EFFECT_SPECTRAL_THIEF:
-                if (!NoAliveMonsForEitherParty())
-                {
-                    bool32 contrary = (GetBattlerAbility(gBattlerAttacker) == ABILITY_CONTRARY);
-                    gBattleStruct->stolenStats[0] = 0; // Stats to steal.
-                    gBattleScripting.animArg1 = 0;
-                    for (i = STAT_ATK; i < NUM_BATTLE_STATS; i++)
-                    {
-                        if (gBattleMons[gBattlerTarget].statStages[i] > DEFAULT_STAT_STAGE && gBattleMons[gBattlerAttacker].statStages[i] != MAX_STAT_STAGE)
-                        {
-                            bool32 byTwo = FALSE;
-
-                            gBattleStruct->stolenStats[0] |= (1 << (i));
-                            // Store by how many stages to raise the stat.
-                            gBattleStruct->stolenStats[i] = gBattleMons[gBattlerTarget].statStages[i] - DEFAULT_STAT_STAGE;
-                            while (gBattleMons[gBattlerAttacker].statStages[i] + gBattleStruct->stolenStats[i] > MAX_STAT_STAGE)
-                                gBattleStruct->stolenStats[i]--;
-                            gBattleMons[gBattlerTarget].statStages[i] = DEFAULT_STAT_STAGE;
-
-                            if (gBattleStruct->stolenStats[i] >= 2)
-                                byTwo++;
-
-                            if (gBattleScripting.animArg1 == 0)
-                            {
-                                if (byTwo)
-                                    gBattleScripting.animArg1 = (contrary ? STAT_ANIM_MINUS2 : STAT_ANIM_PLUS2) + i;
-                                else
-                                    gBattleScripting.animArg1 = (contrary ? STAT_ANIM_MINUS1 : STAT_ANIM_PLUS1) + i;
-                            }
-                            else
-                            {
-                                if (byTwo)
-                                    gBattleScripting.animArg1 = (contrary ? STAT_ANIM_MULTIPLE_MINUS2 : STAT_ANIM_MULTIPLE_PLUS2);
-                                else
-                                    gBattleScripting.animArg1 = (contrary ? STAT_ANIM_MULTIPLE_MINUS1 : STAT_ANIM_MULTIPLE_PLUS1);
-                            }
-                        }
-                    }
-
-                    if (gBattleStruct->stolenStats[0] != 0)
-                    {
-                        BattleScriptPush(gBattlescriptCurrInstr + 1);
-                        gBattlescriptCurrInstr = BattleScript_SpectralThiefSteal;
-                    }
-                }
-                break;
             case MOVE_EFFECT_V_CREATE:
                 if (!NoAliveMonsForEitherParty())
                 {
@@ -9541,26 +9495,6 @@ static void Cmd_various(void)
             CancelMultiTurnMoves(battler);
 
         gStatuses3[battler] &= ~(STATUS3_MAGNET_RISE | STATUS3_TELEKINESIS | STATUS3_ON_AIR | STATUS3_SKY_DROPPED);
-        break;
-    }
-    case VARIOUS_SPECTRAL_THIEF:
-    {
-        VARIOUS_ARGS();
-        // Raise stats
-        for (i = STAT_ATK; i < NUM_BATTLE_STATS; i++)
-        {
-            if (gBattleStruct->stolenStats[0] & (1u << i))
-            {
-                gBattleStruct->stolenStats[0] &= ~(1u << i);
-                SET_STATCHANGER(i, gBattleStruct->stolenStats[i], FALSE);
-                if (ChangeStatBuffs(GET_STAT_BUFF_VALUE_WITH_SIGN(gBattleScripting.statChanger), i, MOVE_EFFECT_CERTAIN | MOVE_EFFECT_AFFECTS_USER, NULL) == STAT_CHANGE_WORKED)
-                {
-                    BattleScriptPushCursor();
-                    gBattlescriptCurrInstr = BattleScript_StatUpMsg;
-                    return;
-                }
-            }
-        }
         break;
     }
     case VARIOUS_SET_POWDER:
@@ -17644,5 +17578,82 @@ void BS_RemoveTerrain(void)
 {
     NATIVE_ARGS();
     RemoveAllTerrains();
+    gBattlescriptCurrInstr = cmd->nextInstr;
+}
+
+void BS_TrySpectralThiefSteal(void)
+{
+    NATIVE_ARGS(const u8 *jumpInstr);
+
+    if (gMoveResultFlags & MOVE_RESULT_NO_EFFECT)
+    {
+        gBattlescriptCurrInstr = cmd->nextInstr;
+        return;
+    }
+
+    bool32 contrary = GetBattlerAbility(gBattlerAttacker) == ABILITY_CONTRARY;
+    gBattleStruct->stolenStats[0] = 0; // Stats to steal.
+    gBattleScripting.animArg1 = 0;
+    for (u32 stat = STAT_ATK; stat < NUM_BATTLE_STATS; stat++)
+    {
+        if (gBattleMons[gBattlerTarget].statStages[stat] > DEFAULT_STAT_STAGE && gBattleMons[gBattlerAttacker].statStages[stat] != MAX_STAT_STAGE)
+        {
+            bool32 byTwo = FALSE;
+
+            gBattleStruct->stolenStats[0] |= (1 << (stat));
+            // Store by how many stages to raise the stat.
+            gBattleStruct->stolenStats[stat] = gBattleMons[gBattlerTarget].statStages[stat] - DEFAULT_STAT_STAGE;
+
+            while (gBattleMons[gBattlerAttacker].statStages[stat] + gBattleStruct->stolenStats[stat] > MAX_STAT_STAGE)
+                gBattleStruct->stolenStats[stat]--;
+
+            gBattleMons[gBattlerTarget].statStages[stat] = DEFAULT_STAT_STAGE;
+
+            if (gBattleStruct->stolenStats[stat] >= 2)
+                byTwo++;
+
+            if (gBattleScripting.animArg1 == 0)
+            {
+                if (byTwo)
+                    gBattleScripting.animArg1 = (contrary ? STAT_ANIM_MINUS2 : STAT_ANIM_PLUS2) + stat;
+                else
+                    gBattleScripting.animArg1 = (contrary ? STAT_ANIM_MINUS1 : STAT_ANIM_PLUS1) + stat;
+            }
+            else
+            {
+                if (byTwo)
+                    gBattleScripting.animArg1 = (contrary ? STAT_ANIM_MULTIPLE_MINUS2 : STAT_ANIM_MULTIPLE_PLUS2);
+                else
+                    gBattleScripting.animArg1 = (contrary ? STAT_ANIM_MULTIPLE_MINUS1 : STAT_ANIM_MULTIPLE_PLUS1);
+            }
+        }
+    }
+
+    if (gBattleStruct->stolenStats[0] != 0)
+        gBattlescriptCurrInstr = cmd->jumpInstr;
+    else
+        gBattlescriptCurrInstr = cmd->nextInstr;
+}
+
+void BS_SpectralThiefPrintStats(void)
+{
+    NATIVE_ARGS();
+
+    for (u32 stat = STAT_ATK; stat < NUM_BATTLE_STATS; stat++)
+    {
+        if (gBattleStruct->stolenStats[0] & (1u << stat))
+        {
+            gBattleStruct->stolenStats[0] &= ~(1u << stat);
+            SET_STATCHANGER(stat, gBattleStruct->stolenStats[stat], FALSE);
+            if (ChangeStatBuffs(GET_STAT_BUFF_VALUE_WITH_SIGN(gBattleScripting.statChanger),
+                                stat,
+                                MOVE_EFFECT_CERTAIN | MOVE_EFFECT_AFFECTS_USER, NULL) == STAT_CHANGE_WORKED)
+            {
+                BattleScriptPushCursor();
+                gBattlescriptCurrInstr = BattleScript_StatUpMsg;
+                return;
+            }
+        }
+    }
     gBattlescriptCurrInstr = cmd->nextInstr;
 }
