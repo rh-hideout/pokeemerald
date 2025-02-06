@@ -6,8 +6,6 @@
 #include "battle_ai_util.h"
 #include "battle_scripts.h"
 #include "battle_z_move.h"
-#include "constants/moves.h"
-#include "constants/abilities.h"
 #include "item.h"
 #include "util.h"
 #include "pokemon.h"
@@ -47,6 +45,7 @@
 #include "pokenav.h"
 #include "menu_specialized.h"
 #include "data.h"
+#include "generational_changes.h"
 #include "constants/abilities.h"
 #include "constants/battle_anim.h"
 #include "constants/battle_move_effects.h"
@@ -1825,9 +1824,9 @@ static const u32 sCriticalHitOdds[]     = {16, 8, 4, 3, 2}; // Gens 2,3,4,5
 
 static inline u32 GetCriticalHitOdds(u32 critChance)
 {
-    if (B_CRIT_CHANCE >= GEN_7)
+    if (GetGenConfig(GEN_CONFIG_CRIT_CHANCE) >= GEN_7)
         return sGen7CriticalHitOdds[critChance];
-    if (B_CRIT_CHANCE == GEN_6)
+    if (GetGenConfig(GEN_CONFIG_CRIT_CHANCE) == GEN_6)
         return sGen6CriticalHitOdds[critChance];
 
     return sCriticalHitOdds[critChance];
@@ -2010,7 +2009,7 @@ static void Cmd_critcalc(void)
     u16 partySlot;
     s32 critChance;
 
-    if (B_CRIT_CHANCE == GEN_1)
+    if (GetGenConfig(GEN_CONFIG_CRIT_CHANCE) == GEN_1)
         critChance = CalcCritChanceStageGen1(gBattlerAttacker, gBattlerTarget, gCurrentMove, TRUE);
     else
         critChance = CalcCritChanceStage(gBattlerAttacker, gBattlerTarget, gCurrentMove, TRUE);
@@ -2025,7 +2024,7 @@ static void Cmd_critcalc(void)
         gIsCriticalHit = TRUE;
     else
     {
-        if (B_CRIT_CHANCE == GEN_1)
+        if (GetGenConfig(GEN_CONFIG_CRIT_CHANCE) == GEN_1)
         {
             u8 critRoll = RandomUniform(RNG_CRITICAL_HIT, 1, 256);
             if (critRoll <= critChance)

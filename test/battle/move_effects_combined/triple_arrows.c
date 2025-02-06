@@ -44,11 +44,14 @@ SINGLE_BATTLE_TEST("Triple Arrows makes the foe flinch 30% of the time")
     }
 }
 
-SINGLE_BATTLE_TEST("Triple Arrows lands a critical hit")
+SINGLE_BATTLE_TEST("Triple Arrows has an increased critical hit ratio")
 {
+    u32 genConfig = 0;
+    for (u32 j = GEN_2; j < GEN_LATEST + 1; j++)
+        PARAMETRIZE { genConfig = j; }
     PASSES_RANDOMLY(1, 8, RNG_CRITICAL_HIT);
     GIVEN {
-        ASSUME(B_CRIT_CHANCE >= GEN_7);
+        WITH_CONFIG(GEN_CONFIG_CRIT_CHANCE, genConfig);
         ASSUME(gMovesInfo[MOVE_TRIPLE_ARROWS].criticalHitStage == 1);
         PLAYER(SPECIES_WOBBUFFET);
         OPPONENT(SPECIES_WOBBUFFET);
