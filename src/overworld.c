@@ -73,6 +73,8 @@
 #include "constants/trainer_hill.h"
 #include "constants/weather.h"
 
+STATIC_ASSERT((B_FLAG_FOLLOWERS_DISABLED == 0 && !OW_FOLLOWERS_ENABLED), FollowersFlagAssignedWithoutEnablingThem);
+
 struct CableClubPlayer
 {
     u8 playerId;
