@@ -1459,10 +1459,11 @@ DOUBLE_BATTLE_TEST("(DYNAMAX) G-Max Depletion takes away 2 PP from the target's 
     GIVEN {
         ASSUME(GetMoveCategory(MOVE_DRAGON_CLAW) == DAMAGE_CATEGORY_PHYSICAL); // Otherwise Sableye faints.
         ASSUME(MoveHasAdditionalEffect(MOVE_G_MAX_DEPLETION, MOVE_EFFECT_SPITE));
+        ASSUME(GetMovePP(MOVE_CELEBRATE) >= 3);
         PLAYER(SPECIES_DURALUDON) { GigantamaxFactor(TRUE); }
         PLAYER(SPECIES_WYNAUT);
         // Dynamax behaves weird with test turn order because stats are recalculated.
-        OPPONENT(SPECIES_SABLEYE) { Ability(ABILITY_PRANKSTER); }
+        OPPONENT(SPECIES_SABLEYE) { Ability(ABILITY_PRANKSTER); Moves(MOVE_CELEBRATE); }
         OPPONENT(SPECIES_WYNAUT);
     } WHEN {
         TURN { MOVE(playerLeft, MOVE_DRAGON_CLAW, target: opponentLeft, gimmick: GIMMICK_DYNAMAX); }
@@ -1470,6 +1471,8 @@ DOUBLE_BATTLE_TEST("(DYNAMAX) G-Max Depletion takes away 2 PP from the target's 
         MESSAGE("The opposing Sableye used Celebrate!");
         MESSAGE("Duraludon used G-Max Depletion!");
         MESSAGE("The opposing Sableye's PP was reduced!");
+    } THEN {
+        EXPECT_EQ(opponentLeft->pp[0], GetMovePP(MOVE_CELEBRATE) - 3); // 1 from regular use + 2 from G-Max Depletion
     }
 }
 
