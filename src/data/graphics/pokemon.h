@@ -23047,10 +23047,6 @@ const u32 gObjectEventPic_Substitute[] = INCBIN_COMP("graphics/pokemon/question_
 #endif //P_FOOTPRINTS
 #if OW_POKEMON_OBJECT_EVENTS
     const u32 gObjectEventPic_Chewtle[] = INCBIN_COMP("graphics/pokemon/chewtle/overworld.4bpp");
-#if OW_PKMN_OBJECTS_SHARE_PALETTES == FALSE
-    const u32 gOverworldPalette_Chewtle[] = INCBIN_U32("graphics/pokemon/chewtle/overworld_normal.gbapal.lz");
-    const u32 gShinyOverworldPalette_Chewtle[] = INCBIN_U32("graphics/pokemon/chewtle/overworld_shiny.gbapal.lz");
-#endif //OW_PKMN_OBJECTS_SHARE_PALETTES
 #endif //OW_POKEMON_OBJECT_EVENTS
 
     const u32 gMonFrontPic_Drednaw[] = INCBIN_U32("graphics/pokemon/drednaw/anim_front.4bpp.lz");

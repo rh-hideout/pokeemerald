@@ -1851,8 +1851,8 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
             SHADOW_SIZE_M,
             TRACKS_FOOT,
             sAnimTable_Following,
-            gOverworldPalette_Chewtle,
-            gShinyOverworldPalette_Chewtle
+            gMonPalette_Chewtle,
+            gMonShinyPalette_Chewtle
         )
         .levelUpLearnset = sChewtleLevelUpLearnset,
         .teachableLearnset = sChewtleTeachableLearnset,
