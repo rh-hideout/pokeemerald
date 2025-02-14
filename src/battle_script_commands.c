@@ -1655,7 +1655,7 @@ static void AccuracyCheck(bool32 recalcDragonDarts, const u8 *nextInstr, const u
                 break;
 
             if ((!calcSpreadMove && battlerDef != gBattlerTarget)
-             || IsBattlerInvalidForSpreadMove(gBattlerAttacker, battlerDef, moveTarget)
+             || IsBattlerInvalidForSpreadMove(gBattlerAttacker, battlerDef, moveTarget, CHECK_BATTLER_ALIVE)
              || (gBattleStruct->noResultString[battlerDef] && gBattleStruct->noResultString[battlerDef] != DO_ACCURACY_CHECK))
                 continue;
 
@@ -1971,7 +1971,7 @@ static void Cmd_critcalc(void)
         if (!calcSpreadMoveDamage && battlerDef != gBattlerTarget)
             continue;
 
-        if (IsBattlerInvalidForSpreadMove(gBattlerAttacker, battlerDef, moveTarget)
+        if (IsBattlerInvalidForSpreadMove(gBattlerAttacker, battlerDef, moveTarget, CHECK_BATTLER_ALIVE)
          || gBattleStruct->noResultString[battlerDef]
          || gBattleStruct->moveResultFlags[battlerDef] & MOVE_RESULT_NO_EFFECT)
             continue;
@@ -2038,7 +2038,7 @@ static void Cmd_damagecalc(void)
         u32 battlerDef;
         for (battlerDef = 0; battlerDef < gBattlersCount; battlerDef++)
         {
-            if (IsBattlerInvalidForSpreadMove(gBattlerAttacker, battlerDef, moveTarget)
+            if (IsBattlerInvalidForSpreadMove(gBattlerAttacker, battlerDef, moveTarget, CHECK_BATTLER_ALIVE)
              || gBattleStruct->noResultString[battlerDef]
              || gBattleStruct->moveResultFlags[battlerDef] & MOVE_RESULT_NO_EFFECT)
                 continue;
@@ -2103,7 +2103,7 @@ static void Cmd_adjustdamage(void)
         if (!calcSpreadMoveDamage && battlerDef != gBattlerTarget)
             continue;
 
-        if (IsBattlerInvalidForSpreadMove(gBattlerAttacker, battlerDef, moveTarget)
+        if (IsBattlerInvalidForSpreadMove(gBattlerAttacker, battlerDef, moveTarget, CHECK_BATTLER_ALIVE)
          || gBattleStruct->noResultString[battlerDef])
             continue;
 
@@ -2349,7 +2349,7 @@ static bool32 ProcessPreAttackAnimationFuncs(void)
         {
             for (u32 battlerDef = 0; battlerDef < gBattlersCount; battlerDef++)
             {
-                if (IsBattlerInvalidForSpreadMove(gBattlerAttacker, battlerDef, moveTarget)
+                if (IsBattlerInvalidForSpreadMove(gBattlerAttacker, battlerDef, moveTarget, CHECK_BATTLER_ALIVE)
                  || (battlerDef == BATTLE_PARTNER(gBattlerAttacker) && !(moveTarget & MOVE_TARGET_FOES_AND_ALLY))
                  || (gBattleStruct->noResultString[battlerDef] && gBattleStruct->noResultString[battlerDef] != DO_ACCURACY_CHECK))
                     continue;
@@ -2361,7 +2361,7 @@ static bool32 ProcessPreAttackAnimationFuncs(void)
 
         for (u32 battlerDef = 0; battlerDef < gBattlersCount; battlerDef++)
         {
-            if (IsBattlerInvalidForSpreadMove(gBattlerAttacker, battlerDef, moveTarget)
+            if (IsBattlerInvalidForSpreadMove(gBattlerAttacker, battlerDef, moveTarget, CHECK_BATTLER_ALIVE)
              || (battlerDef == BATTLE_PARTNER(gBattlerAttacker) && !(moveTarget & MOVE_TARGET_FOES_AND_ALLY))
              || (gBattleStruct->noResultString[battlerDef] && gBattleStruct->noResultString[battlerDef] != DO_ACCURACY_CHECK))
                 continue;
@@ -8560,6 +8560,9 @@ static void Cmd_hitanimation(void)
         u32 battlerDef;
         for (battlerDef = 0; battlerDef < gBattlersCount; battlerDef++)
         {
+            if (IsBattlerInvalidForSpreadMove(gBattlerAttacker, battlerDef, moveTarget, IGNORE_BATTLER_ALIVE))
+                continue;
+
             if (gBattleStruct->moveResultFlags[battlerDef] & MOVE_RESULT_NO_EFFECT
              || gBattleStruct->noResultString[battlerDef])
                 continue;
@@ -10764,7 +10767,7 @@ static void Cmd_various(void)
     case VARIOUS_SET_ARG_TO_BATTLE_DAMAGE:
     {
         VARIOUS_ARGS();
-        gBattleStruct->moveDamage[gBattlerTarget] = GetMoveFixedDamage(gCurrentMove);
+        gBattleStruct->moveDamage[gBattlerTarget] = min(GetMoveFixedDamage(gCurrentMove), gBattleMons[gBattlerTarget].hp);
         break;
     }
     case VARIOUS_TRY_AUTOTOMIZE:

@@ -1286,11 +1286,36 @@ static inline bool32 IsDoubleSpreadMove(void)
         && IsSpreadMove(GetBattlerMoveTargetType(gBattlerAttacker, gCurrentMove));
 }
 
-static inline bool32 IsBattlerInvalidForSpreadMove(u32 battlerAtk, u32 battlerDef, u32 moveTarget)
+/* Checks if a battler is a valid target for a spread move
+ *  'checkAlive' considers if the foe is alive or not.
+ *               - This should be TRUE at the start of the move being used
+ *               - but FALSE mid-move (e.g. checking the resultmessage), as the spread move may have fainted previous target(s)
+ */
+enum CheckAlive {
+    CHECK_BATTLER_ALIVE,
+    IGNORE_BATTLER_ALIVE,
+};
+static inline bool32 IsBattlerInvalidForSpreadMove(u32 battlerAtk, u32 battlerDef, u32 moveTarget, enum CheckAlive checkAlive)
 {
-    return battlerDef == battlerAtk
-        || !IsBattlerAlive(battlerDef)
-        || (battlerDef == BATTLE_PARTNER(battlerAtk) && (moveTarget == MOVE_TARGET_BOTH));
+    if (battlerDef == battlerAtk)
+        return TRUE;
+    if (checkAlive && !IsBattlerAlive(battlerDef))
+        return TRUE;
+    
+    return (battlerDef == BATTLE_PARTNER(battlerAtk) && (moveTarget == MOVE_TARGET_BOTH));
+}
+
+static inline bool32 BattlerMoveHadEffect(u32 battler, u32 moveTarget)
+{
+    u32 i;
+    for (i = 0; i < gBattlersCount; i++)
+    {
+        if (IsBattlerInvalidForSpreadMove(battler, i, moveTarget, IGNORE_BATTLER_ALIVE))
+            continue;
+        if (gBattleStruct->moveResultFlags[i] & MOVE_RESULT_NO_EFFECT)
+            return FALSE;
+    }
+    return TRUE;
 }
 
 #endif // GUARD_BATTLE_H
