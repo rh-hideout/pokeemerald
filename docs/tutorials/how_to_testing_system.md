@@ -554,6 +554,10 @@ Causes the test to fail if a and b compare incorrectly, e.g.
      EXPECT_EQ(results[0].damage, Q_4_12(1.5), results[1].damage);
 ```
 
+### `FORCE_MOVE_ANIM`
+`FORCE_MOVE_ANIM(TRUE)`
+Forces the moves in the current test to do their animations in headless mode, useful for debugging animations.
+
 ## Overworld Command Reference
 
 ### `OVERWORLD_SCRIPT`
