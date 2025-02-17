@@ -343,11 +343,20 @@ struct BattlePokemon
     /*0x5A*/ bool8 isShiny;
 };
 
+struct EvolutionParam
+{
+    u16 condition;
+    u16 arg1;
+    u16 arg2;
+    u16 arg3;
+};
+
 struct Evolution
 {
     u16 method;
     u16 param;
     u16 targetSpecies;
+    const struct EvolutionParam *params;
 };
 
 struct SpeciesInfo /*0xC4*/
@@ -722,7 +731,8 @@ u8 *UseStatIncreaseItem(u16 itemId);
 u8 GetNature(struct Pokemon *mon);
 u8 GetNatureFromPersonality(u32 personality);
 u32 GetGMaxTargetSpecies(u32 species);
-u16 GetEvolutionTargetSpecies(struct Pokemon *mon, enum EvolutionMode mode, u16 evolutionItem, struct Pokemon *tradePartner);
+bool32 DoesMonMeetAdditionalConditions(struct Pokemon *mon, const struct EvolutionParam *params, struct Pokemon *tradePartner, u32 partyId, bool32 *canStopEvo);
+u32 GetEvolutionTargetSpecies(struct Pokemon *mon, enum EvolutionMode mode, u16 evolutionItem, struct Pokemon *tradePartner, bool32 *canStopEvo);
 bool8 IsMonPastEvolutionLevel(struct Pokemon *mon);
 u16 NationalPokedexNumToSpecies(u16 nationalNum);
 u16 NationalToHoennOrder(u16 nationalNum);
