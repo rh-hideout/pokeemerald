@@ -1137,4 +1137,7 @@
 #undef B_FLAG_SLEEP_CLAUSE
 #define B_FLAG_SLEEP_CLAUSE              FLAG_SPECIAL_FLAG_UNUSED_0x4003
 
+// Compression DebugPrintf switch
+#define T_COMPRESSION_SHOULD_PRINT TRUE
+
 #endif // GUARD_CONFIG_TEST_H

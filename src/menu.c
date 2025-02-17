@@ -2,6 +2,7 @@
 #include "malloc.h"
 #include "bg.h"
 #include "blit.h"
+#include "decompress.h"
 #include "dma3.h"
 #include "event_data.h"
 #include "field_weather.h"
@@ -1943,23 +1944,15 @@ void task_free_buf_after_copying_tile_data_to_vram(u8 taskId)
 
 void *malloc_and_decompress(const void *src, u32 *size)
 {
-    u32 sizeLocal; // If size is passed as NULL, because we don't care about knowing the size
     void *ptr;
+    u32 localSize = GetDecompressedDataSize(src);
 
-    if (size == NULL)
-        size = &sizeLocal;
+    if (size != NULL)
+        *size = localSize;
 
-    u8 *sizeAsBytes = (u8 *)size;
-    u8 *srcAsBytes = (u8 *)src;
-
-    sizeAsBytes[0] = srcAsBytes[1];
-    sizeAsBytes[1] = srcAsBytes[2];
-    sizeAsBytes[2] = srcAsBytes[3];
-    sizeAsBytes[3] = 0;
-
-    ptr = Alloc(*size);
+    ptr = Alloc(localSize);
     if (ptr)
-        LZ77UnCompWram(src, ptr);
+        DecompressDataWithHeaderWram(src, ptr);
     return ptr;
 }
 
