@@ -28,8 +28,10 @@ static u8 sGlobalScriptContextStatus;
 static struct ScriptContext sGlobalScriptContext;
 static struct ScriptContext sImmediateScriptContext;
 static bool8 sLockFieldControls;
+static bool8 sMsgBoxWalkawayDisabled;
 EWRAM_DATA u8 gMsgIsSignPost = FALSE;
 EWRAM_DATA u8 gMsgBoxIsCancelable = FALSE;
+EWRAM_DATA u16 gBufferedWalkawayInput = 0;
 
 extern ScrCmdFunc gScriptCmdTable[];
 extern ScrCmdFunc gScriptCmdTableEnd[];
@@ -253,6 +255,9 @@ bool8 ScriptContext_RunScript(void)
 // Sets up a new script in the global context and enables the context
 void ScriptContext_SetupScript(const u8 *ptr)
 {
+    gMsgBoxIsCancelable = FALSE;
+    EnableMsgBoxWalkaway();
+
     InitScriptContext(&sGlobalScriptContext, gScriptCmdTable, gScriptCmdTableEnd);
     SetupBytecodeScript(&sGlobalScriptContext, ptr);
     LockPlayerFieldControls();
@@ -506,4 +511,19 @@ void InitRamScript_NoObjectEvent(u8 *script, u16 scriptSize)
         scriptSize = sizeof(gSaveBlock1Ptr->ramScript.data.script);
     InitRamScript(script, scriptSize, MAP_GROUP(UNDEFINED), MAP_NUM(UNDEFINED), NO_OBJECT);
 #endif //FREE_MYSTERY_EVENT_BUFFERS
+}
+
+void DisableMsgBoxWalkaway(void)
+{
+    sMsgBoxWalkawayDisabled = TRUE;
+}
+
+void EnableMsgBoxWalkaway(void)
+{
+    sMsgBoxWalkawayDisabled = FALSE;
+}
+
+bool8 IsMsgBoxWalkawayDisabled(void)
+{
+    return sMsgBoxWalkawayDisabled;
 }

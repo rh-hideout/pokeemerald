@@ -266,5 +266,6 @@ MoveTutor_EventScript_OpenPartyMenu::
 	return
 
 MoveTutor_EventScript_CanOnlyBeLearnedOnce::
+	special DisableMsgBoxWalkaway
 	msgbox MoveTutor_Text_ThisMoveCanOnlyBeLearnedOnce, MSGBOX_YESNO
 	return

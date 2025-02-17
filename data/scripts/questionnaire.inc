@@ -41,6 +41,7 @@ Questionnaire_EventScript_PlayerInputMysteryGiftPhrase::
 	waitmovement 0
 	msgbox Questionnaire_Text_YouKnowThoseWordsGift, MSGBOX_DEFAULT
 	setflag FLAG_SYS_MYSTERY_GIFT_ENABLE
+	special DisableMsgBoxWalkaway
 	msgbox Questionnaire_Text_YouCanAccessMysteryGift, MSGBOX_DEFAULT
 	releaseall
 	end

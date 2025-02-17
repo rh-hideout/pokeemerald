@@ -104,6 +104,11 @@ void FieldGetPlayerInput(struct FieldInput *input, u16 newKeys, u16 heldKeys)
     u8 runningState = gPlayerAvatar.runningState;
     bool8 forcedMove = MetatileBehavior_IsForcedMovementTile(GetPlayerCurMetatileBehavior(runningState));
 
+    if(!ScriptContext_IsEnabled() && gBufferedWalkawayInput)
+    {
+        heldKeys = newKeys = gBufferedWalkawayInput;
+        gBufferedWalkawayInput = 0;
+    }
     if ((tileTransitionState == T_TILE_CENTER && forcedMove == FALSE) || tileTransitionState == T_NOT_MOVING)
     {
         if (GetPlayerSpeed() != PLAYER_SPEED_FASTEST)
@@ -1226,6 +1231,8 @@ void CancelSignPostMessageBox(struct FieldInput *input)
 
     if (IsDpadPushedToTurnOrMovePlayer(input))
     {
+        if (IsMsgBoxWalkawayDisabled() == TRUE)
+            return;
         ScriptContext_SetupScript(EventScript_CancelMessageBox);
         LockPlayerFieldControls();
         return;
