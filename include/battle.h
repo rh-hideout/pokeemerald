@@ -103,9 +103,9 @@ struct DisableStruct
     u8 embargoTimer;
     u8 magnetRiseTimer;
     u8 telekinesisTimer;
-    u8 healBlockTimer;
+    u16 healBlockTimer;
     u8 laserFocusTimer;
-    u8 throatChopTimer;
+    u16 throatChopTimer;
     u8 wrapTurns;
     u8 syrupBombTimer;
     u8 tormentTimer:4; // used for G-Max Meltdown
@@ -571,7 +571,7 @@ struct ZMoveData
 
 struct DynamaxData
 {
-    u8 dynamaxTurns[MAX_BATTLERS_COUNT];
+    u16 dynamaxTurns[MAX_BATTLERS_COUNT];
     u16 baseMoves[MAX_BATTLERS_COUNT]; // base move of Max Move
     u16 lastUsedBaseMove;
 };
@@ -648,9 +648,9 @@ struct BattlerState
 struct BattleStruct
 {
     struct BattlerState battlerState[MAX_BATTLERS_COUNT];
-    u8 turnEffectsTracker;
+    u8 eventBlockCounter;
     u8 turnEffectsBattlerId;
-    u8 turnCountersTracker;
+    u8 endTurnEventsCounter;
     u16 wrappedMove[MAX_BATTLERS_COUNT];
     u16 moveTarget[MAX_BATTLERS_COUNT];
     u32 expShareExpValue;
@@ -722,8 +722,6 @@ struct BattleStruct
         struct LinkBattlerHeader linkBattlerHeader;
         struct BattleVideo battleVideo;
     } multiBuffer;
-    u8 wishPerishSongState;
-    u8 wishPerishSongBattlerId;
     u8 startingStatus:6; // status to apply at battle start. defined in constants/battle.h
     u8 startingStatusDone:1;
     u8 terrainDone:1;
