@@ -70,6 +70,7 @@ enum ItemCaseId
     ITEMEFFECT_ON_SWITCH_IN,
     ITEMEFFECT_ON_SWITCH_IN_FIRST_TURN,
     ITEMEFFECT_NORMAL,
+    ITEMEFFECT_TRY_HEALING,
     ITEMEFFECT_MOVE_END,
     ITEMEFFECT_KINGSROCK,
     ITEMEFFECT_TARGET,
@@ -171,6 +172,8 @@ enum SleepClauseBlock
 };
 
 void HandleAction_ThrowBall(void);
+u32 GetCurrentBattleWeather(void);
+u32 EndOrContinueWeather(void);
 bool32 IsAffectedByFollowMe(u32 battlerAtk, u32 defSide, u32 move);
 bool32 HandleMoveTargetRedirection(void);
 void HandleAction_UseMove(void);
@@ -204,10 +207,8 @@ u32 TrySetCantSelectMoveBattleScript(u32 battler);
 u8 CheckMoveLimitations(u32 battler, u8 unusableMoves, u16 check);
 bool32 AreAllMovesUnusable(u32 battler);
 u8 GetImprisonedMovesCount(u32 battler, u16 move);
-u8 DoFieldEndTurnEffects(void);
 s32 GetDrainedBigRootHp(u32 battler, s32 hp);
-u8 DoBattlerEndTurnEffects(void);
-bool32 HandleWishPerishSongOnTurnEnd(void);
+u32 DoEndTurnEffects(void);
 bool32 HandleFaintedMonActions(void);
 void TryClearRageAndFuryCutter(void);
 u32 AtkCanceller_MoveSuccessOrder(void);
@@ -323,6 +324,7 @@ bool32 CanBeConfused(u32 battler);
 bool32 IsBattlerTerrainAffected(u32 battler, u32 terrainFlag);
 u32 GetBattlerAffectionHearts(u32 battler);
 void TryToRevertMimicryAndFlags(void);
+bool32 BattleArenaTurnEnd(void);
 u32 CountBattlerStatIncreases(u32 battler, bool32 countEvasionAcc);
 bool32 ChangeTypeBasedOnTerrain(u32 battler);
 void RemoveConfusionStatus(u32 battler);
