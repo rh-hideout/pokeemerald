@@ -984,13 +984,14 @@ AI_SINGLE_BATTLE_TEST("AI_FLAG_SMART_SWITCHING: AI will switch out if main attac
 
 AI_SINGLE_BATTLE_TEST("Switch AI: AI will switch into mon with good type matchup and SE move if current mon has no SE move and no stats raised")
 {
-    KNOWN_FAILING; // Either remove or replace the function
-    u32 odds = 0, species = SPECIES_NONE, move = MOVE_NONE;
-    PARAMETRIZE { odds = 33; species = SPECIES_SCIZOR; move = MOVE_X_SCISSOR; }
-    PARAMETRIZE { odds = 50; species = SPECIES_DUSCLOPS; move = MOVE_SHADOW_BALL; }
+    u32 odds = 0, species = SPECIES_NONE, move = MOVE_NONE, aiFlags = 0;
+    PARAMETRIZE { odds = SHOULD_SWITCH_SE_DEFENSIVE_RESIST_PERCENTAGE; species = SPECIES_SCIZOR;      move = MOVE_X_SCISSOR       ;aiFlags = 0; }
+    PARAMETRIZE { odds = SHOULD_SWITCH_SE_DEFENSIVE_IMMUNE_PERCENTAGE; species = SPECIES_DUSCLOPS;    move = MOVE_SHADOW_BALL;    aiFlags = 0; }
+    PARAMETRIZE { odds = SHOULD_SWITCH_SE_DEFENSIVE_RESIST_PERCENTAGE; species = SPECIES_SCIZOR;      move = MOVE_X_SCISSOR;      aiFlags = AI_FLAG_SMART_SWITCHING; }
+    PARAMETRIZE { odds = SHOULD_SWITCH_SE_DEFENSIVE_IMMUNE_PERCENTAGE; species = SPECIES_DUSCLOPS;    move = MOVE_SHADOW_BALL;    aiFlags = AI_FLAG_SMART_SWITCHING; }
     PASSES_RANDOMLY(odds, 100, RNG_AI_SWITCH_SE_DEFENSIVE);
     GIVEN {
-        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT);
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT | aiFlags);
         PLAYER(SPECIES_MUNNA) { Moves(MOVE_TACKLE); }
         OPPONENT(SPECIES_MUNNA) { Moves(MOVE_TACKLE); }
         OPPONENT(species) { Moves(move); }

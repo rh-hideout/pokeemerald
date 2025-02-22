@@ -100,6 +100,10 @@ u32 GetSwitchChance(enum ShouldSwitchScenario shouldSwitchScenario)
             return SHOULD_SWITCH_ATTACKING_STAT_MINUS_TWO_PERCENTAGE;
         case SHOULD_SWITCH_ATTACKING_STAT_MINUS_THREE_PLUS:
             return SHOULD_SWITCH_ATTACKING_STAT_MINUS_THREE_PLUS_PERCENTAGE;
+        case SHOULD_SWITCH_SE_DEFENSIVE_IMMUNE:
+            return SHOULD_SWITCH_SE_DEFENSIVE_IMMUNE_PERCENTAGE;
+        case SHOULD_SWITCH_SE_DEFENSIVE_RESIST:
+            return SHOULD_SWITCH_SE_DEFENSIVE_RESIST_PERCENTAGE;
         default:
             return 100;
     }
@@ -785,10 +789,8 @@ static bool32 FindMonWithFlagsAndSuperEffective(u32 battler, u16 flags, u32 perc
     s32 i, j;
     u16 move;
 
-    // Similar functionality handled more thoroughly by ShouldSwitchIfHasBadOdds
-    if (AI_THINKING_STRUCT->aiFlags[GetThinkingBattler(battler)] & AI_FLAG_SMART_SWITCHING)
+    if (AI_DATA->mostSuitableMonId[battler] == PARTY_SIZE)
         return FALSE;
-
     if (gLastLandedMoves[battler] == MOVE_NONE)
         return FALSE;
     if (gLastLandedMoves[battler] == MOVE_UNAVAILABLE)
@@ -1104,8 +1106,6 @@ bool32 ShouldSwitch(u32 battler)
     // Removing switch capabilites under specific conditions
     // These Functions prevent the "FindMonWithFlagsAndSuperEffective" from getting out of hand.
     // We don't use FindMonWithFlagsAndSuperEffective with AI_FLAG_SMART_SWITCHING, so we can bail early.
-    if (AI_THINKING_STRUCT->aiFlags[GetThinkingBattler(battler)] & AI_FLAG_SMART_SWITCHING)
-        return FALSE;
     if (HasSuperEffectiveMoveAgainstOpponents(battler, FALSE))
         return FALSE;
     if (AreStatsRaised(battler))
@@ -1113,8 +1113,8 @@ bool32 ShouldSwitch(u32 battler)
 
     // Default Function
     // Can prompt switch if AI has a pokemon in party that resists current opponent & has super effective move
-    if (FindMonWithFlagsAndSuperEffective(battler, MOVE_RESULT_DOESNT_AFFECT_FOE, 50)
-        || FindMonWithFlagsAndSuperEffective(battler, MOVE_RESULT_NOT_VERY_EFFECTIVE, 33))
+    if (FindMonWithFlagsAndSuperEffective(battler, MOVE_RESULT_DOESNT_AFFECT_FOE, SHOULD_SWITCH_SE_DEFENSIVE_IMMUNE_PERCENTAGE)
+        || FindMonWithFlagsAndSuperEffective(battler, MOVE_RESULT_NOT_VERY_EFFECTIVE, SHOULD_SWITCH_SE_DEFENSIVE_RESIST_PERCENTAGE))
         return TRUE;
 
     return FALSE;

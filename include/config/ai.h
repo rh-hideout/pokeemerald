@@ -9,6 +9,8 @@
 #define SHOULD_SWITCH_WONDER_GUARD_PERCENTAGE                   100
 #define SHOULD_SWITCH_TRUANT_PERCENTAGE                         100
 #define SHOULD_SWITCH_ALL_MOVES_BAD_PERCENTAGE                  100
+#define SHOULD_SWITCH_SE_DEFENSIVE_IMMUNE_PERCENTAGE            50
+#define SHOULD_SWITCH_SE_DEFENSIVE_RESIST_PERCENTAGE            33
 
 // AI smart switching chances; if you want more complex behaviour, modify GetSwitchChance
 #define SHOULD_SWITCH_ABSORBS_MOVE_PERCENTAGE                       100
