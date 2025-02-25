@@ -4,6 +4,7 @@
 #include "decompress.h"
 #include "decoration.h"
 #include "decoration_inventory.h"
+#include "event_data.h"
 #include "event_object_movement.h"
 #include "field_player_avatar.h"
 #include "field_screen_effect.h"
@@ -34,6 +35,7 @@
 #include "strings.h"
 #include "text_window.h"
 #include "tv.h"
+#include "constants/flags.h"
 #include "constants/decorations.h"
 #include "constants/event_objects.h"
 #include "constants/items.h"
@@ -156,6 +158,216 @@ static void Task_HandleShopMenuBuy(u8 taskId);
 static void Task_HandleShopMenuSell(u8 taskId);
 static void BuyMenuPrintItemDescriptionAndShowItemIcon(s32 item, bool8 onInit, struct ListMenu *list);
 static void BuyMenuPrintPriceInList(u8 windowId, u32 itemId, u8 y);
+
+static const u16 sShopInventory_ZeroBadgesBeforePokedex[] =
+{
+    ITEM_POTION,
+    ITEM_NONE
+};
+
+static const u16 sShopInventory_ZeroBadgesAfterPokedex[] =
+{
+    ITEM_POKE_BALL,
+    ITEM_POTION,
+    ITEM_ANTIDOTE,
+    ITEM_NONE
+};
+
+static const u16 sShopInventory_OneBadge[] =
+{
+    ITEM_POKE_BALL,
+    ITEM_GREAT_BALL,
+    ITEM_POTION,
+    ITEM_SUPER_POTION,
+    ITEM_ANTIDOTE,
+    ITEM_PARLYZ_HEAL,
+    ITEM_AWAKENING,
+    ITEM_BURN_HEAL,
+    ITEM_ICE_HEAL,
+    ITEM_ESCAPE_ROPE,
+    ITEM_REPEL,
+    ITEM_NONE
+};
+
+static const u16 sShopInventory_TwoBadges[] =
+{
+    ITEM_POKE_BALL,
+    ITEM_GREAT_BALL,
+    ITEM_POTION,
+    ITEM_SUPER_POTION,
+    ITEM_HYPER_POTION,
+    ITEM_REVIVE,
+    ITEM_ANTIDOTE,
+    ITEM_PARLYZ_HEAL,
+    ITEM_AWAKENING,
+    ITEM_BURN_HEAL,
+    ITEM_ICE_HEAL,
+    ITEM_ESCAPE_ROPE,
+    ITEM_REPEL,
+    ITEM_SUPER_REPEL,
+    ITEM_NONE
+};
+
+static const u16 sShopInventory_ThreeBadges[] =
+{
+    ITEM_POKE_BALL,
+    ITEM_GREAT_BALL,
+    ITEM_ULTRA_BALL,
+    ITEM_POTION,
+    ITEM_SUPER_POTION,
+    ITEM_HYPER_POTION,
+    ITEM_REVIVE,
+    ITEM_ANTIDOTE,
+    ITEM_PARLYZ_HEAL,
+    ITEM_AWAKENING,
+    ITEM_BURN_HEAL,
+    ITEM_ICE_HEAL,
+    ITEM_ESCAPE_ROPE,
+    ITEM_REPEL,
+    ITEM_SUPER_REPEL,
+    ITEM_MAX_REPEL,
+    ITEM_NONE
+};
+
+static const u16 sShopInventory_FourBadges[] =
+{
+    ITEM_POKE_BALL,
+    ITEM_GREAT_BALL,
+    ITEM_ULTRA_BALL,
+    ITEM_POTION,
+    ITEM_SUPER_POTION,
+    ITEM_HYPER_POTION,
+    ITEM_MAX_POTION,
+    ITEM_REVIVE,
+    ITEM_ANTIDOTE,
+    ITEM_PARLYZ_HEAL,
+    ITEM_AWAKENING,
+    ITEM_BURN_HEAL,
+    ITEM_ICE_HEAL,
+    ITEM_ESCAPE_ROPE,
+    ITEM_REPEL,
+    ITEM_SUPER_REPEL,
+    ITEM_MAX_REPEL,
+    ITEM_NONE
+};
+
+static const u16 sShopInventory_FiveBadges[] =
+{
+    ITEM_POKE_BALL,
+    ITEM_GREAT_BALL,
+    ITEM_ULTRA_BALL,
+    ITEM_POTION,
+    ITEM_SUPER_POTION,
+    ITEM_HYPER_POTION,
+    ITEM_MAX_POTION,
+    ITEM_FULL_RESTORE,
+    ITEM_REVIVE,
+    ITEM_ANTIDOTE,
+    ITEM_PARLYZ_HEAL,
+    ITEM_AWAKENING,
+    ITEM_BURN_HEAL,
+    ITEM_ICE_HEAL,
+    ITEM_ESCAPE_ROPE,
+    ITEM_REPEL,
+    ITEM_SUPER_REPEL,
+    ITEM_MAX_REPEL,
+    ITEM_NONE
+};
+
+static const u16 sShopInventory_SixBadges[] =
+{
+    ITEM_POKE_BALL,
+    ITEM_GREAT_BALL,
+    ITEM_ULTRA_BALL,
+    ITEM_POTION,
+    ITEM_SUPER_POTION,
+    ITEM_HYPER_POTION,
+    ITEM_MAX_POTION,
+    ITEM_FULL_RESTORE,
+    ITEM_REVIVE,
+    ITEM_ANTIDOTE,
+    ITEM_PARLYZ_HEAL,
+    ITEM_AWAKENING,
+    ITEM_BURN_HEAL,
+    ITEM_ICE_HEAL,
+    ITEM_ESCAPE_ROPE,
+    ITEM_REPEL,
+    ITEM_SUPER_REPEL,
+    ITEM_MAX_REPEL,
+    ITEM_NONE
+};
+
+static const u16 sShopInventory_SevenBadges[] =
+{
+    ITEM_POKE_BALL,
+    ITEM_GREAT_BALL,
+    ITEM_ULTRA_BALL,
+    ITEM_POTION,
+    ITEM_SUPER_POTION,
+    ITEM_HYPER_POTION,
+    ITEM_MAX_POTION,
+    ITEM_FULL_RESTORE,
+    ITEM_REVIVE,
+    ITEM_ANTIDOTE,
+    ITEM_PARLYZ_HEAL,
+    ITEM_AWAKENING,
+    ITEM_BURN_HEAL,
+    ITEM_ICE_HEAL,
+    ITEM_ESCAPE_ROPE,
+    ITEM_REPEL,
+    ITEM_SUPER_REPEL,
+    ITEM_MAX_REPEL,
+    ITEM_NONE
+};
+
+static const u16 sShopInventory_EightBadges[] =
+{
+    ITEM_POKE_BALL,
+    ITEM_GREAT_BALL,
+    ITEM_ULTRA_BALL,
+    ITEM_POTION,
+    ITEM_SUPER_POTION,
+    ITEM_HYPER_POTION,
+    ITEM_MAX_POTION,
+    ITEM_FULL_RESTORE,
+    ITEM_REVIVE,
+    ITEM_ANTIDOTE,
+    ITEM_PARLYZ_HEAL,
+    ITEM_AWAKENING,
+    ITEM_BURN_HEAL,
+    ITEM_ICE_HEAL,
+    ITEM_ESCAPE_ROPE,
+    ITEM_REPEL,
+    ITEM_SUPER_REPEL,
+    ITEM_MAX_REPEL,
+    ITEM_NONE
+};
+
+static const u16 *const sShopInventoriesBeforePokedex[] =
+{
+    sShopInventory_ZeroBadgesBeforePokedex, 
+    sShopInventory_OneBadge,
+    sShopInventory_TwoBadges,
+    sShopInventory_ThreeBadges,
+    sShopInventory_FourBadges,
+    sShopInventory_FiveBadges,
+    sShopInventory_SixBadges,
+    sShopInventory_SevenBadges,
+    sShopInventory_EightBadges
+};
+
+static const u16 *const sShopInventoriesAfterPokedex[] = 
+{
+    sShopInventory_ZeroBadgesAfterPokedex, 
+    sShopInventory_OneBadge,
+    sShopInventory_TwoBadges,
+    sShopInventory_ThreeBadges,
+    sShopInventory_FourBadges,
+    sShopInventory_FiveBadges,
+    sShopInventory_SixBadges,
+    sShopInventory_SevenBadges,
+    sShopInventory_EightBadges
+};
 
 static const struct YesNoFuncTable sShopPurchaseYesNoFuncs =
 {
@@ -377,14 +589,40 @@ static void SetShopMenuCallback(void (* callback)(void))
     sMartInfo.callback = callback;
 }
 
+static u32 GetNumberOfBadges(void)
+{
+    u32 badgeFlag;
+    u32 count = 0;
+    
+    for (badgeFlag = FLAG_BADGE01_GET; badgeFlag < FLAG_BADGE01_GET + NUM_BADGES; badgeFlag++)
+    {
+        if (FlagGet(badgeFlag))
+            count++;
+    }
+    
+    return count;
+}
+
 static void SetShopItemsForSale(const u16 *items)
 {
-    u16 i = 0;
+    u32 i = 0;
+    u32 badgeCount = GetNumberOfBadges();
 
-    sMartInfo.itemList = items;
+    if (items == NULL)
+    {
+        if (FlagGet(FLAG_RECEIVED_POKEDEX_FROM_BIRCH))
+        {
+            sMartInfo.itemList = sShopInventoriesAfterPokedex[badgeCount];
+        }
+        else
+        {
+            sMartInfo.itemList = sShopInventoriesBeforePokedex[badgeCount];
+        }
+    }
+    else
+        sMartInfo.itemList = items;
+
     sMartInfo.itemCount = 0;
-
-    // Read items until ITEM_NONE / DECOR_NONE is reached
     while (sMartInfo.itemList[i])
     {
         sMartInfo.itemCount++;
