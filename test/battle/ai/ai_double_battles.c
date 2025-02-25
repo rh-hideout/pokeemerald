@@ -108,7 +108,7 @@ AI_DOUBLE_BATTLE_TEST("AI without any flags chooses moves at random - doubles")
     }
 }
 
-AI_DOUBLE_BATTLE_TEST("AI will not choose Earthquake if it damages the partner")
+AI_DOUBLE_BATTLE_TEST("AI will not choose Earthquake if it damages the partner without a positive effect")
 {
     u32 species;
 
@@ -128,6 +128,55 @@ AI_DOUBLE_BATTLE_TEST("AI will not choose Earthquake if it damages the partner")
             TURN { EXPECT_MOVE(opponentLeft, MOVE_EARTHQUAKE); }
         else
             TURN { EXPECT_MOVE(opponentLeft, MOVE_TACKLE, target: playerLeft); }
+    }
+}
+
+AI_DOUBLE_BATTLE_TEST("AI will choose Bulldoze if it triggers its ally's Defiant but will not KO the ally")
+{
+    TO_DO;
+
+    u32 species, ability, level;    
+
+    PARAMETRIZE { species = SPECIES_KINGAMBIT; ability = ABILITY_DEFIANT;  level = 100; }
+    PARAMETRIZE { species = SPECIES_PAWNIARD;  ability = ABILITY_PRESSURE; level = 1; }
+    PARAMETRIZE { species = SPECIES_PAWNIARD;  ability = ABILITY_DEFIANT;  level = 1; }
+
+    GIVEN {
+        ASSUME(GetMoveTarget(MOVE_EARTHQUAKE) == MOVE_TARGET_FOES_AND_ALLY);
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_PHANPY) { Moves(MOVE_BULLDOZE, MOVE_TACKLE); }
+        OPPONENT(species) { Moves(MOVE_CELEBRATE); Level(level); Ability(ability); }
+    } WHEN {
+        if ((species == SPECIES_KINGAMBIT) && (ability == ABILITY_DEFIANT))
+            TURN { EXPECT_MOVE(opponentLeft, MOVE_BULLDOZE); }
+        else
+            TURN { EXPECT_MOVE(opponentLeft, MOVE_TACKLE, target: playerLeft); }
+    }
+}
+
+AI_DOUBLE_BATTLE_TEST("AI will choose Beat Up on an ally with Justified if it will not KO.")
+{
+    TO_DO;
+
+    u32 ability, level;
+
+    PARAMETRIZE { ability = ABILITY_FLASH_FIRE; level = 100; }
+    PARAMETRIZE { ability = ABILITY_JUSTIFIED; level = 100; }
+    PARAMETRIZE { ability = ABILITY_JUSTIFIED; level = 1; }
+
+    GIVEN {
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_CLEFABLE);
+        OPPONENT(SPECIES_SNEASEL) { Moves(MOVE_BEAT_UP); }
+        OPPONENT(SPECIES_GROWLITHE) { Moves(MOVE_CELEBRATE); Level(level); Ability(ability); }
+    } WHEN {
+        if ((level == 100) && (ability == ABILITY_JUSTIFIED))
+            TURN { EXPECT_MOVE(opponentLeft, MOVE_BEAT_UP, target: opponentRight); }
+        else
+            TURN { EXPECT_MOVE(opponentLeft, MOVE_BEAT_UP, target: playerLeft); }
     }
 }
 
@@ -197,4 +246,78 @@ AI_DOUBLE_BATTLE_TEST("AI recognizes Volt Absorb received from Trace")
     }
 }
 
+AI_DOUBLE_BATTLE_TEST("AI activates its ally's Weakness Policy with spread moves if it will not KO")
+{
+    TO_DO;
+    
+    u32 holdItem, currentHP;
+
+    PARAMETRIZE { holdItem = ITEM_NONE; currentHP = 500; }
+    PARAMETRIZE { holdItem = ITEM_WEAKNESS_POLICY; currentHP = 500; }
+    PARAMETRIZE { holdItem = ITEM_WEAKNESS_POLICY; currentHP = 1; }
+
+    GIVEN {
+        ASSUME(GetMoveTarget(MOVE_EARTHQUAKE) == MOVE_TARGET_FOES_AND_ALLY);
+        ASSUME(GetMoveTarget(MOVE_STOMPING_TANTRUM) == MOVE_TARGET_SELECTED);
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_PHANPY) { Moves(MOVE_EARTHQUAKE, MOVE_STOMPING_TANTRUM); }
+        OPPONENT(SPECIES_INCINEROAR) { Moves(MOVE_CELEBRATE); Item(holdItem); HP(currentHP); }
+    } WHEN {
+        if ((holdItem = ITEM_WEAKNESS_POLICY) && (currentHP == 500))
+            TURN { EXPECT_MOVE(opponentLeft, MOVE_EARTHQUAKE); }
+        else
+            TURN { EXPECT_MOVE(opponentLeft, MOVE_STOMPING_TANTRUM, target: playerLeft); }
+    }
+}
+
+AI_DOUBLE_BATTLE_TEST("AI will not use Trick Room if its ally is fast")
+{
+    TO_DO;
+
+    u32 species;
+
+    PARAMETRIZE { species = SPECIES_SLOWBRO; }
+    PARAMETRIZE { species = SPECIES_REGIELEKI; }
+    GIVEN {
+        ASSUME(GetMoveEffect(MOVE_TRICK_ROOM) == EFFECT_TRICK_ROOM);
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_TRICK_ROOM, MOVE_TACKLE); }
+        OPPONENT(species) { Moves(MOVE_CELEBRATE); }
+    } WHEN {
+        if (species == SPECIES_REGIELEKI)
+            TURN { EXPECT_MOVE(opponentLeft, MOVE_TACKLE); }
+        else
+            TURN { EXPECT_MOVE(opponentLeft, MOVE_TRICK_ROOM); }
+    }
+}
+
+AI_DOUBLE_BATTLE_TEST("AI knows that giving its ally immunity would let it use a spread move")
+{
+    TO_DO;
+    ASSUME(GetMoveTarget(MOVE_SURF) == MOVE_TARGET_FOES_AND_ALLY);
+
+    u32 ability, move;
+
+    PARAMETRIZE { ability = ABILITY_LEVITATE;       move = MOVE_EARTHQUAKE; }
+    PARAMETRIZE { ability = ABILITY_EARTH_EATER;    move = MOVE_EARTHQUAKE; }
+    PARAMETRIZE { ability = ABILITY_VOLT_ABSORB;    move = MOVE_DISCHARGE; }
+    PARAMETRIZE { ability = ABILITY_MOTOR_DRIVE;    move = MOVE_DISCHARGE; }
+    PARAMETRIZE { ability = ABILITY_LIGHTNING_ROD;  move = MOVE_DISCHARGE; }
+    PARAMETRIZE { ability = ABILITY_FLASH_FIRE;     move = MOVE_LAVA_PLUME; }
+    PARAMETRIZE { ability = ABILITY_WATER_ABSORB;   move = MOVE_SURF; }
+    GIVEN {
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_CLAYDOL) { Ability(ability); Moves(MOVE_SKILL_SWAP, move); }
+        OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_CELEBRATE);  }
+    } WHEN {
+        TURN { EXPECT_MOVE(opponentLeft, MOVE_SKILL_SWAP, target: opponentRight); }
+        TURN { EXPECT_MOVE(opponentLeft, move); }
+    }
+}
 

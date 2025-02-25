@@ -256,6 +256,56 @@ AI_DOUBLE_BATTLE_TEST("AI prioritizes Skill Swapping Contrary to allied mons tha
     }
 }
 
+AI_SINGLE_BATTLE_TEST("AI Skill Swaps to a bad ability with a way to force a switch")
+{
+    TO_DO;
+
+    u32 move, item;
+
+    PARAMETRIZE { move = MOVE_CELEBRATE; item = ITEM_NONE; }
+    PARAMETRIZE { move = MOVE_ROAR;      item = ITEM_NONE; }
+    PARAMETRIZE { move = MOVE_CELEBRATE; item = ITEM_RED_CARD; }
+
+    GIVEN {
+        ASSUME(GetMoveEffect(MOVE_SKILL_SWAP) == EFFECT_SKILL_SWAP);
+        ASSUME(GetMoveEffect(MOVE_ROAR) == EFFECT_ROAR);
+        ASSUME(gItemsInfo[ITEM_RED_CARD].holdEffect == HOLD_EFFECT_RED_CARD);
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_TRY_TO_FAINT | AI_FLAG_CHECK_VIABILITY);
+        PLAYER(SPECIES_SLAKING) { Ability(ABILITY_TRUANT); }
+        OPPONENT(SPECIES_ESPEON) { Ability(ABILITY_SYNCHRONIZE); Moves(MOVE_SKILL_SWAP, move, MOVE_TACKLE); Item(item); }
+    } WHEN {
+        if ((move == MOVE_CELEBRATE) && (item == ITEM_NONE))
+            TURN { EXPECT_MOVE(opponent, MOVE_TACKLE); }
+        else
+            TURN { EXPECT_MOVE(opponent, MOVE_SKILL_SWAP); }
+    }
+}
+
+AI_DOUBLE_BATTLE_TEST("AI Skill Swaps to a bad ability if its ally can force a switch")
+{
+    TO_DO;
+
+    u32 move;
+
+    PARAMETRIZE { move = MOVE_CELEBRATE; }
+    PARAMETRIZE { move = MOVE_ROAR;      }
+
+    GIVEN {
+        ASSUME(GetMoveEffect(MOVE_SKILL_SWAP) == EFFECT_SKILL_SWAP);
+        ASSUME(GetMoveEffect(MOVE_ROAR) == EFFECT_ROAR);
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_TRY_TO_FAINT | AI_FLAG_CHECK_VIABILITY);
+        PLAYER(SPECIES_SLAKING) { Ability(ABILITY_TRUANT); }
+        PLAYER(SPECIES_SLAKING) { Ability(ABILITY_TRUANT); }
+        OPPONENT(SPECIES_ESPEON) { Moves(MOVE_SKILL_SWAP, MOVE_TACKLE); }
+        OPPONENT(SPECIES_ESPEON) { Moves(move, MOVE_TACKLE); }
+    } WHEN {
+        if (move == MOVE_CELEBRATE)
+            TURN { EXPECT_MOVE(opponentLeft, MOVE_TACKLE); }
+        else
+            TURN { EXPECT_MOVE(opponentLeft, MOVE_SKILL_SWAP); }
+    }
+}
+
 AI_SINGLE_BATTLE_TEST("AI prioritizes Pursuit if it would KO opponent")
 {
     GIVEN {
@@ -268,3 +318,4 @@ AI_SINGLE_BATTLE_TEST("AI prioritizes Pursuit if it would KO opponent")
         TURN { SWITCH(player, 1); EXPECT_MOVE(opponent, MOVE_PURSUIT); SEND_OUT(player, 1); }
     }
 }
+
