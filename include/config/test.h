@@ -1137,4 +1137,7 @@
 #undef B_FLAG_SLEEP_CLAUSE
 #define B_FLAG_SLEEP_CLAUSE              TESTING_FLAG_SLEEP_CLAUSE
 
+//  Move animation testing
+#define T_SHOULD_RUN_MOVE_ANIM  FALSE       //  If TRUE, enables the move animation tests, these are very computationally heavy and takes a long time to run.
+
 #endif // GUARD_CONFIG_TEST_H
