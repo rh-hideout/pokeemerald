@@ -90,3 +90,27 @@ AI_SINGLE_BATTLE_TEST("AI_FLAG_RISKY | AI_FLAG_PREFER_HIGHEST_DAMAGE_MOVE: AI pr
             TURN { MOVE(player, MOVE_TACKLE); EXPECT_MOVE(opponent, aiRiskyFlag ? MOVE_THUNDER : MOVE_THUNDERBOLT); }
     }
 }
+
+AI_DOUBLE_BATTLE_TEST("AI_FLAG_RISKY will choose Bulldoze if it triggers its ally's Defiant and will only kill the ally with a critical hit")
+{
+    TO_DO;
+    u32 currentHP;
+
+    PARAMETRIZE { currentHP = 1; }
+    PARAMETRIZE { currentHP = 400; }
+    PARAMETRIZE { currentHP = 190; }
+
+    GIVEN {
+        ASSUME(GetMoveTarget(MOVE_EARTHQUAKE) == MOVE_TARGET_FOES_AND_ALLY);
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_PHANPY) { Moves(MOVE_BULLDOZE, MOVE_TACKLE); }
+        OPPONENT(SPECIES_PAWNIARD) { Moves(MOVE_CELEBRATE); Ability(ABILITY_DEFIANT); HP(currentHP); }
+    } WHEN {
+        if (currentHP == 1)
+            TURN { EXPECT_MOVE(opponentLeft, MOVE_TACKLE, target: playerLeft); }
+        else
+            TURN { EXPECT_MOVE(opponentLeft, MOVE_BULLDOZE); }
+    }
+}
