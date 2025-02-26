@@ -21,6 +21,7 @@
 #include <cstdio>
 #include <cassert>
 #include <string>
+#include <cstring>
 #include <vector>
 #include <algorithm>
 #include <memory>
@@ -29,6 +30,9 @@
 #include "error.h"
 #include "agb.h"
 #include "tables.h"
+
+// expansion headers
+#include "../../include/config/battle.h"
 
 enum class MidiEventCategory
 {
@@ -955,7 +959,10 @@ void ReadMidiTracks()
                 if (g_compressionEnabled)
                     Compress(*events);
 
-                PrintAgbTrack(*events);
+                if ((strcmp(g_asmLabel.c_str(), "se_low_health") == 0) && B_NUM_LOW_HEALTH_BEEPS >= 0)
+                    PrintAgbTrackLoop(*events);
+                else
+                    PrintAgbTrack(*events);
 
                 g_agbTrack++;
             }
