@@ -428,7 +428,7 @@ struct SpeciesInfo /*0xC4*/
 #else
     u8 paddingF:3;
 #endif //P_GENDER_DIFFERENCES
-    u8 padding3:2;
+    u8 pokemonJumpType:2; // According to the clerk, the Pokémon allowed in Pokémon Jump are all <= 28 inches/71 cm, and do not only swim, burrow, or fly.
     u8 enemyMonElevation; // This determines how much higher above the usual position the enemy Pokémon is during battle. Species that float or fly have nonzero values.
     // Flags
     u32 isLegendary:1;
