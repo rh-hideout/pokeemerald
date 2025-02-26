@@ -8008,10 +8008,22 @@ const struct Item gItemsInfo[] =
         .name = _("Icy Rock"),
         .price = (I_PRICE >= GEN_9) ? 8000 : ((I_PRICE >= GEN_7) ? 4000 : 200),
         .holdEffect = HOLD_EFFECT_ICY_ROCK,
+#if B_PREFERRED_ICE_WEATHER == B_ICE_WEATHER_HAIL
         .description = COMPOUND_STRING(
             "Extends the length\n"
             "of the move Hail\n"
             "used by the holder."),
+#elif B_PREFERRED_ICE_WEATHER == B_ICE_WEATHER_SNOW
+        .description = COMPOUND_STRING(
+            "Extends the length\n"
+            "of Snowscape if\n"
+            "used by the holder."),
+#else
+        .description = COMPOUND_STRING(
+            "Extends the length\n"
+            "of cold weathers\n"
+            "used by the holder."),
+#endif
         .pocket = POCKET_ITEMS,
         .type = ITEM_USE_BAG_MENU,
         .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
@@ -10502,10 +10514,17 @@ const struct Item gItemsInfo[] =
     {
         .name = _("TM07"),
         .price = 3000,
+#if B_PREFERRED_ICE_WEATHER == B_ICE_WEATHER_SNOW
+        .description = COMPOUND_STRING(
+            "Raises the Defense\n"
+            "of Ice type {PKMN}\n"
+            "for 5 turns."),
+#else
         .description = COMPOUND_STRING(
             "Creates a hailstorm\n"
             "that damages all\n"
             "types except Ice."),
+#endif
         .importance = I_REUSABLE_TMS,
         .pocket = POCKET_TM_HM,
         .type = ITEM_USE_PARTY_MENU,
