@@ -4671,3 +4671,22 @@ const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_Follower = {
     .images = NULL,
     .affineAnims = gDummySpriteAffineAnimTable,
 };
+
+const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_BallLight = {
+    .tileTag = TAG_NONE, 
+    .paletteTag = OBJ_EVENT_PAL_TAG_LIGHT, 
+    .reflectionPaletteTag = OBJ_EVENT_PAL_TAG_LIGHT_2, 
+    .size = 512, 
+    .width = 32, 
+    .height = 32, 
+    .paletteSlot = PALSLOT_NPC_1, 
+    .shadowSize = SHADOW_SIZE_NONE, 
+    .inanimate = TRUE, 
+    .compressed = FALSE, 
+    .tracks = TRACKS_NONE, 
+    .oam = &gObjectEventBaseOam_32x32,
+    .subspriteTables = sOamTables_32x32, 
+    .anims = sAnimTable_Inanimate, 
+    .images = gFieldEffectObjectPicTable_BallLight, 
+    .affineAnims = gDummySpriteAffineAnimTable,
+};

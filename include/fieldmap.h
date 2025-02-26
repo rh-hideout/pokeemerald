@@ -45,7 +45,7 @@ void InitTrainerHillMap(void);
 void InitBattlePyramidMap(bool8 setPlayerPosition);
 void CopyMapTilesetsToVram(struct MapLayout const *mapLayout);
 void LoadMapTilesetPalettes(struct MapLayout const *mapLayout);
-void LoadSecondaryTilesetPalette(struct MapLayout const *mapLayout);
+void LoadSecondaryTilesetPalette(struct MapLayout const *mapLayout, bool8 skipFaded);
 void CopySecondaryTilesetToVramUsingHeap(struct MapLayout const *mapLayout);
 void CopyPrimaryTilesetToVram(const struct MapLayout *);
 void CopySecondaryTilesetToVram(const struct MapLayout *);

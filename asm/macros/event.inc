@@ -1790,11 +1790,14 @@
 	.4byte \text
 	.endm
 
-	@ Equivalent to fadescreen but copies gPlttBufferUnfaded to an allocated buffer on the fade out
-	@ and the reverse on the fade in, in effect saving gPlttBufferUnfaded to restore it.
-	.macro fadescreenswapbuffers mode:req
+	@ Equivalent to fadescreen but uses a hardware fade and darken/lighten blend modes,
+	@ to avoid modifying palettes at all.
+	@ Useful for fade-out/fade-in without leaving the overworld or entering a new scene.
+	@ If nowait set, doesn't wait for the fade to complete
+	.macro fadescreenswapbuffers mode:req, nowait=0
 	.byte SCR_OP_FADESCREENSWAPBUFFERS
 	.byte \mode
+	.byte \nowait
 	.endm
 
 	@ Buffers the specified trainer's class name to the given string var.

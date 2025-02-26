@@ -132,5 +132,12 @@
 #define FLDEFF_PAL_TAG_HOF_MONITOR        0x1010
 #define FLDEFF_PAL_TAG_UNKNOWN            0x1011
 #define FLDEFF_PAL_TAG_CAVE_DUST          0x1012
+#define FLDEFF_PAL_TAG_FIELD_MOVE_MON     0x8400
+
+// tile tags, for field effects that may have many copies on screen at once
+#define FLDEFF_TILE_TAG_SHADOW_SMALL        0x1400
+#define FLDEFF_TILE_TAG_SHADOW_MEDIUM       0x1401
+#define FLDEFF_TILE_TAG_SHADOW_LARGE        0x1402
+#define FLDEFF_TILE_TAG_SHADOW_EXTRA_LARGE  0x1403
 
 #endif // GUARD_FIELD_EFFECT_CONSTANTS_H

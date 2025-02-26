@@ -5,5 +5,6 @@
 
 void InitTimeBasedEvents(void);
 void DoTimeBasedEvents(void);
+void FormChangeTimeUpdate();
 
 #endif // GUARD_CLOCK_H

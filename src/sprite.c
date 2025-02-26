@@ -1596,9 +1596,17 @@ void LoadSpritePalettes(const struct SpritePalette *palettes)
             break;
 }
 
+u8 LoadSpritePaletteInSlot(const struct SpritePalette *palette, u8 paletteNum)
+{
+    paletteNum = min(15, paletteNum);
+    sSpritePaletteTags[paletteNum] = palette->tag;
+    DoLoadSpritePalette(palette->data, paletteNum * 16);
+    return paletteNum;
+}
+
 void DoLoadSpritePalette(const u16 *src, u16 paletteOffset)
 {
-    LoadPalette(src, OBJ_PLTT_OFFSET + paletteOffset, PLTT_SIZE_4BPP);
+    LoadPaletteFast(src, OBJ_PLTT_OFFSET + paletteOffset, PLTT_SIZE_4BPP);
 }
 
 u32 AllocSpritePalette(u16 tag)

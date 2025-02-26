@@ -392,7 +392,7 @@ void SetMewAboveGrass(void)
             gSprites[mew->spriteId].subpriority = 1;
 
         LoadSpritePalette(&gSpritePalette_GeneralFieldEffect1);
-        UpdateSpritePaletteWithWeather(IndexOfSpritePaletteTag(gSpritePalette_GeneralFieldEffect1.tag));
+        UpdateSpritePaletteWithWeather(IndexOfSpritePaletteTag(gSpritePalette_GeneralFieldEffect1.tag), FALSE);
 
         x = mew->currentCoords.x;
         y = mew->currentCoords.y;

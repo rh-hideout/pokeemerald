@@ -42,7 +42,7 @@
 #include "constants/songs.h"
 
 #define TAG_SCROLL_ARROW   2100
-#define TAG_ITEM_ICON_BASE 2110
+#define TAG_ITEM_ICON_BASE 9110 // immune to time blending
 
 #define MAX_ITEMS_SHOWN 8
 

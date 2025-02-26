@@ -1156,6 +1156,7 @@ static void Task_OrbEffect(u8 taskId)
         ClearGpuRegBits(REG_OFFSET_DISPCNT, DISPCNT_WIN1_ON);
         SetGpuRegBits(REG_OFFSET_BLDCNT, gOrbEffectBackgroundLayerFlags[0]);
         SetGpuReg(REG_OFFSET_BLDALPHA, BLDALPHA_BLEND(12, 7));
+        UpdateShadowColor(RGB(9, 8, 8));
         SetGpuReg(REG_OFFSET_WININ, WININ_WIN0_BG_ALL | WININ_WIN0_OBJ | WININ_WIN0_CLR);
         SetGpuReg(REG_OFFSET_WINOUT, WINOUT_WIN01_BG1 | WINOUT_WIN01_BG2 | WINOUT_WIN01_BG3 | WINOUT_WIN01_OBJ);
         SetBgTilemapPalette(0, 0, 0, DISPLAY_TILE_WIDTH, DISPLAY_TILE_HEIGHT, 0xF);
@@ -1223,6 +1224,7 @@ static void Task_OrbEffect(u8 taskId)
         SetGpuReg(REG_OFFSET_DISPCNT, tDispCnt);
         SetGpuReg(REG_OFFSET_BLDCNT, tBldCnt);
         SetGpuReg(REG_OFFSET_BLDALPHA, tBldAlpha);
+        UpdateShadowColor(RGB_BLACK);
         SetGpuReg(REG_OFFSET_WININ, tWinIn);
         SetGpuReg(REG_OFFSET_WINOUT, tWinOut);
         ScriptContext_Enable();

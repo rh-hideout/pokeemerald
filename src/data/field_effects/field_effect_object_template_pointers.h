@@ -35,6 +35,7 @@ extern const struct SpriteTemplate gFieldEffectObjectTemplate_AshLaunch;
 extern const struct SpriteTemplate gFieldEffectObjectTemplate_Bubbles;
 extern const struct SpriteTemplate gFieldEffectObjectTemplate_SmallSparkle;
 extern const struct SpriteTemplate gFieldEffectObjectTemplate_Rayquaza;
+extern const struct SpriteTemplate gFieldEffectObjectTemplate_BallLight;
 extern const struct SpriteTemplate gFieldEffectObjectTemplate_SlitherTracks;
 extern const struct SpriteTemplate gFieldEffectObjectTemplate_BugTracks;
 extern const struct SpriteTemplate gFieldEffectObjectTemplate_SpotTracks;
