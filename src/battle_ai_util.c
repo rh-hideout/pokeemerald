@@ -364,15 +364,15 @@ bool32 MovesWithCategoryUnusable(u32 attacker, u32 target, u32 category)
 {
     s32 i, moveType;
     u32 usable = 0;
-    u32 unusable = AI_DATA->moveLimitations[attacker];
     u16 *moves = GetMovesArray(attacker);
+    u32 moveLimitations = AI_DATA->moveLimitations[attacker];
 
     for (i = 0; i < MAX_MON_MOVES; i++)
     {
-        if (moves[i] != MOVE_NONE
-            && moves[i] != MOVE_UNAVAILABLE
-            && GetBattleMoveCategory(moves[i]) == category
-            && !(unusable & (1u << i)))
+        if (IsMoveUnusable(i, moves[i], moveLimitations))
+            continue;
+
+        if (GetBattleMoveCategory(moves[i]) == category)
         {
             SetTypeBeforeUsingMove(moves[i], attacker);
             moveType = GetBattleMoveType(moves[i]);
@@ -1157,13 +1157,15 @@ static bool32 CanEndureHit(u32 battler, u32 battlerTarget, u32 move)
 bool32 CanTargetFaintAi(u32 battlerDef, u32 battlerAtk)
 {
     s32 i;
-    u32 unusable = AI_DATA->moveLimitations[battlerDef];
     u16 *moves = GetMovesArray(battlerDef);
+    u32 moveLimitations = AI_DATA->moveLimitations[battlerAtk];
 
     for (i = 0; i < MAX_MON_MOVES; i++)
     {
-        if (moves[i] != MOVE_NONE && moves[i] != MOVE_UNAVAILABLE && !(unusable & (1u << i))
-            && AI_DATA->simulatedDmg[battlerDef][battlerAtk][i].expected >= gBattleMons[battlerAtk].hp
+        if (IsMoveUnusable(i, moves[i], moveLimitations))
+            continue;
+
+        if (AI_DATA->simulatedDmg[battlerDef][battlerAtk][i].expected >= gBattleMons[battlerAtk].hp
             && !CanEndureHit(battlerDef, battlerAtk, moves[i]))
         {
             return TRUE;
@@ -1196,13 +1198,15 @@ u32 GetBestDmgMoveFromBattler(u32 battlerAtk, u32 battlerDef)
     u32 i;
     u32 move = 0;
     u32 bestDmg = 0;
-    u32 unusable = AI_DATA->moveLimitations[battlerAtk];
     u16 *moves = GetMovesArray(battlerAtk);
+    u32 moveLimitations = AI_DATA->moveLimitations[battlerAtk];
 
     for (i = 0; i < MAX_MON_MOVES; i++)
     {
-        if (moves[i] != MOVE_NONE && moves[i] != MOVE_UNAVAILABLE && !(unusable & (1u << i))
-            && bestDmg < AI_DATA->simulatedDmg[battlerAtk][battlerDef][i].expected)
+        if (IsMoveUnusable(i, moves[i], moveLimitations))
+            continue;
+
+        if (bestDmg < AI_DATA->simulatedDmg[battlerAtk][battlerDef][i].expected)
         {
             bestDmg = AI_DATA->simulatedDmg[battlerAtk][battlerDef][i].expected;
             move = moves[i];
@@ -1215,18 +1219,16 @@ u32 GetBestDmgFromBattler(u32 battler, u32 battlerTarget)
 {
     u32 i;
     u32 bestDmg = 0;
-    u32 unusable = AI_DATA->moveLimitations[battler];
     u16 *moves = GetMovesArray(battler);
+    u32 moveLimitations = AI_DATA->moveLimitations[battler];
 
     for (i = 0; i < MAX_MON_MOVES; i++)
     {
-        if (moves[i] != MOVE_NONE
-         && moves[i] != MOVE_UNAVAILABLE
-         && !(unusable & (1u << i))
-         && bestDmg < AI_DATA->simulatedDmg[battler][battlerTarget][i].expected)
-        {
+        if (IsMoveUnusable(i, moves[i], moveLimitations))
+            continue;
+
+        if (bestDmg < AI_DATA->simulatedDmg[battler][battlerTarget][i].expected)
             bestDmg = AI_DATA->simulatedDmg[battler][battlerTarget][i].expected;
-        }
     }
 
     return bestDmg;
@@ -1237,27 +1239,26 @@ u32 GetBestDmgFromBattler(u32 battler, u32 battlerTarget)
 bool32 CanAIFaintTarget(u32 battlerAtk, u32 battlerDef, u32 numHits)
 {
     s32 i, dmg;
-    u32 moveLimitations = AI_DATA->moveLimitations[battlerAtk];
     u16 *moves = gBattleMons[battlerAtk].moves;
+    u32 moveLimitations = AI_DATA->moveLimitations[battlerAtk];
 
     for (i = 0; i < MAX_MON_MOVES; i++)
     {
-        if (moves[i] != MOVE_NONE && moves[i] != MOVE_UNAVAILABLE && !(moveLimitations & (1u << i)))
+        if (IsMoveUnusable(i, moves[i], moveLimitations))
+            continue;
+
+        dmg = AI_DATA->simulatedDmg[battlerAtk][battlerDef][i].expected;
+
+        if (numHits)
+            dmg *= numHits;
+
+        if (gBattleMons[battlerDef].hp <= dmg)
         {
-            // Use the pre-calculated value in simulatedDmg instead of re-calculating it
-            dmg = AI_DATA->simulatedDmg[battlerAtk][battlerDef][i].expected;
+            if (numHits > 1)
+                return TRUE;
 
-            if (numHits)
-                dmg *= numHits;
-
-            if (gBattleMons[battlerDef].hp <= dmg)
-            {
-                if (numHits > 1)
-                    return TRUE;
-
-                if (!CanEndureHit(battlerAtk, battlerDef, moves[i]))
-                    return TRUE;
-            }
+            if (!CanEndureHit(battlerAtk, battlerDef, moves[i]))
+                return TRUE;
         }
     }
 
@@ -1279,24 +1280,25 @@ bool32 CanTargetMoveFaintAi(u32 move, u32 battlerDef, u32 battlerAtk, u32 nHits)
 bool32 CanTargetFaintAiWithMod(u32 battlerDef, u32 battlerAtk, s32 hpMod, s32 dmgMod)
 {
     u32 i;
-    u32 unusable = AI_DATA->moveLimitations[battlerDef];
     s32 dmg;
-    u16 *moves = gBattleResources->battleHistory->usedMoves[battlerDef];
+    u16 *moves = GetMovesArray(battlerDef);
     u32 hpCheck = gBattleMons[battlerAtk].hp + hpMod;
+    u32 moveLimitations = AI_DATA->moveLimitations[battlerAtk];
 
     if (hpCheck > gBattleMons[battlerAtk].maxHP)
         hpCheck = gBattleMons[battlerAtk].maxHP;
 
     for (i = 0; i < MAX_MON_MOVES; i++)
     {
+        if (IsMoveUnusable(i, moves[i], moveLimitations))
+            continue;
+
         dmg = AI_DATA->simulatedDmg[battlerAtk][battlerDef][i].expected;
         if (dmgMod)
             dmg *= dmgMod;
 
-        if (moves[i] != MOVE_NONE && moves[i] != MOVE_UNAVAILABLE && !(unusable & (1u << i)) && dmg >= hpCheck)
-        {
+        if (dmg >= hpCheck)
             return TRUE;
-        }
     }
 
     return FALSE;
@@ -2184,20 +2186,17 @@ bool32 HasMoveWithLowAccuracy(u32 battlerAtk, u32 battlerDef, u32 accCheck, bool
 
     for (i = 0; i < MAX_MON_MOVES; i++)
     {
-        if (moves[i] == MOVE_NONE || moves[i] == MOVE_UNAVAILABLE)
+        if (IsMoveUnusable(i, moves[i], moveLimitations))
             continue;
 
-        if (!((1u << i) & moveLimitations))
-        {
-            if (ignoreStatus && IsBattleMoveStatus(moves[i]))
-                continue;
-            else if ((!IsBattleMoveStatus(moves[i]) && GetMoveAccuracy(moves[i]) == 0)
-                  || GetBattlerMoveTargetType(battlerAtk, moves[i]) & (MOVE_TARGET_USER | MOVE_TARGET_OPPONENTS_FIELD))
-                continue;
+        if (ignoreStatus && IsBattleMoveStatus(moves[i]))
+            continue;
+        else if ((!IsBattleMoveStatus(moves[i]) && GetMoveAccuracy(moves[i]) == 0)
+              || GetBattlerMoveTargetType(battlerAtk, moves[i]) & (MOVE_TARGET_USER | MOVE_TARGET_OPPONENTS_FIELD))
+            continue;
 
-            if (AI_DATA->moveAccuracy[battlerAtk][battlerDef][i] <= accCheck)
-                return TRUE;
-        }
+        if (AI_DATA->moveAccuracy[battlerAtk][battlerDef][i] <= accCheck)
+            return TRUE;
     }
 
     return FALSE;
@@ -2205,20 +2204,17 @@ bool32 HasMoveWithLowAccuracy(u32 battlerAtk, u32 battlerDef, u32 accCheck, bool
 
 bool32 HasSleepMoveWithLowAccuracy(u32 battlerAtk, u32 battlerDef)
 {
-    u32 moveLimitations = AI_DATA->moveLimitations[battlerAtk];
     u32 i;
     u16 *moves = GetMovesArray(battlerAtk);
+    u32 moveLimitations = AI_DATA->moveLimitations[battlerAtk];
 
     for (i = 0; i < MAX_MON_MOVES; i++)
     {
-        if (moves[i] == MOVE_NONE)
-            break;
-        if (!((1u << i) & moveLimitations))
-        {
-            if (GetMoveEffect(moves[i]) == EFFECT_SLEEP
-              && AI_DATA->moveAccuracy[battlerAtk][battlerDef][i] < 85)
-                return TRUE;
-        }
+        if (IsMoveUnusable(i, moves[i], moveLimitations))
+            continue;
+
+        if (GetMoveEffect(moves[i]) == EFFECT_SLEEP && AI_DATA->moveAccuracy[battlerAtk][battlerDef][i] < 85)
+            return TRUE;
     }
     return FALSE;
 }
