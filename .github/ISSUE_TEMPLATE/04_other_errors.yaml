@@ -5,28 +5,48 @@ body:
   - type: markdown
     attributes:
       value: |
-        Please fill in all required fields with as many details as possible.
+        Please fill in all fields with as many details as possible.
   - type: textarea
     id: description
     attributes:
       label: Description
       description: |
-        Describe the issue you are experiencing.
-        Attach images/videos if possible.
+        What behavior are you expecting to happen? What behavior are you observing instead?
       placeholder: |
-        Please enter a description of the issue. Here you can also attach log screenshots, gifs or a video
+        Please be as descriptive as possible.
     validations:
       required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Steps
+      description: |
+        What exact steps can somebody else follow in order to recreate the issue on their own?
+      placeholder: |
+        Provide as much context as possible as to what was done to create the issue. 
+    validations:
+      required: false 
+  - type: textarea
+    id: media 
+    attributes:
+      label: Images / Video 
+      description: |
+        Do you have images or videos to show the problem happen?
+      placeholder: |
+        Here you can also attach logs, screenshots, gifs or a video.
+    validations:
+      required: false
   - type: dropdown
     id: version
     attributes:
       label: Version
-      description: What version of pokeemerald-expansion are you using as a base?
+      description: What version of pokeemerald-expansion are you using?
       options:
-        - 1.10.2 (Latest release)
         - master (default, unreleased bugfixes)
         - upcoming (Edge)
-        - 1.10.1
+        - 1.10.3 (Latest release)
+        - 1.10.2 
+        - 1.10.1 
         - 1.10.0
         - 1.9.4
         - 1.9.3
@@ -40,14 +60,14 @@ body:
     id: upcomingversion
     attributes:
       label: Upcoming/master Version
-      description: If you're using the upcoming or master branches directly, please specify what was the commit hash you pulled from.
+      description: If you're using the `upcoming` or `master` branches directly, please use the following command to give us the commit hash that you are on. `git log --merges RHH/upcoming -1 --format=%H` Replace `upcoming` with `master` if you're using `master`.
     validations:
       required: false
   - type: input
     id: contact
     attributes:
       label: Discord contact info
-      description: Provide your Discord tag here so we can contact you in case we need more details. Be sure to join our server ([here](https://discord.gg/6CzjAG6GZk)).
+      description: Provide your Discord tag here so we can contact you in case we need more details. Discussion around **`pokeemerald-expansion`** happens in our [Discord server](https://discord.gg/6CzjAG6GZk).
       placeholder: ex. Lunos#4026
     validations:
       required: false

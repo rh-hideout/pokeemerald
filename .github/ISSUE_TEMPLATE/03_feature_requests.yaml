@@ -5,23 +5,32 @@ body:
   - type: markdown
     attributes:
       value: |
-        Please fill in all required fields with as many details as possible.
+        Please fill in all fields with as many details as possible.
   - type: textarea
-    id: description
+    id: behavior
     attributes:
-      label: Description
+      label: Behavior Description
       description: |
-        Describe the issue you are experiencing.
-        Attach images/videos if possible.
+        What is the current behavior? What behavior would you expect your feature request to provide? What other information can you provide to help your feature get implemented?
       placeholder: |
-        Please enter a description of the issue. Here you can also attach log screenshots, gifs or a video
+        Provide as much context as possible. 
     validations:
       required: true
+  - type: textarea
+    id: media
+    attributes:
+      label: Images / Video 
+      description: |
+        Have other projects or games solved this problem? Do you have images or video to show this happening?
+      placeholder: |
+        Here you can also attach logs, screenshots, gifs or a video.
+    validations:
+      required: false
   - type: input
     id: contact
     attributes:
       label: Discord contact info
-      description: Provide your Discord tag here so we can contact you in case we need more details. Be sure to join our server ([here](https://discord.gg/6CzjAG6GZk)).
+      description: Provide your Discord tag here so we can contact you in case we need more details. Discussion around **pokeemerald-expansion** happens in our [Discord server](https://discord.gg/6CzjAG6GZk).
       placeholder: ex. Lunos#4026
     validations:
       required: false
