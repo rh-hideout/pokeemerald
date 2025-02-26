@@ -1776,34 +1776,54 @@ void ProtectChecks(u32 battlerAtk, u32 battlerDef, u32 move, u32 predictedMove, 
 }
 
 // stat stages
-bool32 ShouldLowerStat(u32 battlerAtk, u32 battlerDef, u32 battlerAbility, u32 stat)
+bool32 ShouldLowerStat(u32 battlerAtk, u32 battlerDef, u32 abilityDef, u32 stat)
 {
-    if (gBattleMons[battlerDef].statStages[stat] > MIN_STAT_STAGE && battlerAbility != ABILITY_CONTRARY)
-    {
-        if (AI_DATA->holdEffects[battlerDef] == HOLD_EFFECT_CLEAR_AMULET
-         || battlerAbility == ABILITY_CLEAR_BODY
-         || battlerAbility == ABILITY_WHITE_SMOKE
-         || battlerAbility == ABILITY_FULL_METAL_BODY)
-            return FALSE;
+    // Arguably there should be a decrease in score if the target is a -4 stages
+    if (gBattleMons[battlerDef].statStages[stat] == MIN_STAT_STAGE)
+        return FALSE;
 
-        switch (stat)
-        {
-            case STAT_ATK:
-                return !(battlerAbility == ABILITY_HYPER_CUTTER);
-            case STAT_DEF:
-                return !(battlerAbility == ABILITY_BIG_PECKS);
-            case STAT_SPEED:
-                // If AI is faster and doesn't have any mons left, lowering speed doesn't give any
-                return !(AI_IsFaster(battlerAtk, battlerDef, AI_THINKING_STRUCT->moveConsidered)
-                    && CountUsablePartyMons(battlerAtk) == 0
-                    && !HasMoveEffect(battlerAtk, EFFECT_ELECTRO_BALL));
-            case STAT_ACC:
-                return !(battlerAbility == ABILITY_KEEN_EYE || (B_ILLUMINATE_EFFECT >= GEN_9 && battlerAbility == ABILITY_ILLUMINATE));
-        }
-        return TRUE;
+    if (AI_DATA->holdEffects[battlerDef] == HOLD_EFFECT_CLEAR_AMULET)
+        return FALSE;
+
+    switch (abilityDef)
+    {
+    case ABILITY_SPEED_BOOST:
+        if (stat == STAT_SPEED)
+            return FALSE;
+    case ABILITY_HYPER_CUTTER:
+        if (stat == STAT_ATK)
+            return FALSE;
+    case ABILITY_BIG_PECKS:
+        if (stat == STAT_DEF)
+            return FALSE;
+    case ABILITY_ILLUMINATE:
+        if (B_ILLUMINATE_EFFECT < GEN_9)
+            break;
+    case ABILITY_KEEN_EYE:
+    case ABILITY_MINDS_EYE:
+        if (stat == STAT_ACC)
+            return FALSE;
+    case ABILITY_FLOWER_VEIL:
+        if (IS_BATTLER_OF_TYPE(battlerDef, TYPE_GRASS))
+            return FALSE;
+        break;
+    case ABILITY_CONTRARY:
+    case ABILITY_CLEAR_BODY:
+    case ABILITY_WHITE_SMOKE:
+    case ABILITY_FULL_METAL_BODY:
+        return FALSE;
     }
 
-    return FALSE;
+    // Arguably this shouldn't be here and insated checked in checkViability
+    if (stat == STAT_SPEED)
+    {
+        // If AI is faster and doesn't have any mons left, lowering speed doesn't give any
+        return !(AI_IsFaster(battlerAtk, battlerDef, AI_THINKING_STRUCT->moveConsidered)
+            && CountUsablePartyMons(battlerAtk) == 0
+            && !HasMoveEffect(battlerAtk, EFFECT_ELECTRO_BALL));
+    }
+
+    return TRUE;
 }
 
 bool32 BattlerStatCanRise(u32 battler, u32 battlerAbility, u32 stat)
