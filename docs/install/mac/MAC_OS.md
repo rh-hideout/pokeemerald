@@ -10,6 +10,13 @@
     - If devkitARM is **not installed**, then go to [Installing devkitARM (macOS)](#installing-devkitarm-macos).
     - Otherwise, **open the Terminal** and go to [Choosing where to store pokeemerald-expansion (macOS)](#choosing-where-to-store-pokeemerald-expansion-macos)
 
+3. **Optional: To run tests**, if the homebrew environment is not installed, install the package manager using [this reference](https://brew.sh). Open your terminal and run the following commands:
+
+    ```bash
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    brew install coreutils
+    ```
+
 ### Installing libpng (macOS)
 <details>
     <summary><i>Note for advanced users...</i></summary>
