@@ -170,6 +170,19 @@ enum SleepClauseBlock
     BLOCKED_BY_SLEEP_CLAUSE,
 };
 
+enum SkyDropState
+{
+    SKY_DROP_IGNORE,
+    SKY_DROP_ATTACKCANCELLER_CHECK,
+    SKY_DROP_GRAVITY_ON_AIRBORNE,
+    SKY_DROP_CANCEL_MULTI_TURN_MOVES,
+    SKY_DROP_STATUS_YAWN,
+    SKY_DROP_STATUS_FREEZE_SLEEP,
+};
+
+#define SKY_DROP_NO_TARGET 0xFF
+#define SKY_DROP_RELEASED_TARGET 0xFE
+
 void HandleAction_ThrowBall(void);
 bool32 IsAffectedByFollowMe(u32 battlerAtk, u32 defSide, u32 move);
 bool32 HandleMoveTargetRedirection(void);
@@ -191,7 +204,7 @@ u8 GetBattlerForBattleScript(u8 caseId);
 bool32 IsBattlerMarkedForControllerExec(u32 battler);
 void MarkBattlerForControllerExec(u32 battler);
 void MarkBattlerReceivedLinkData(u32 battler);
-const u8* CancelMultiTurnMoves(u32 battler);
+const u8* CancelMultiTurnMoves(u32 battler, enum SkyDropState skyDropState);
 bool32 WasUnableToUseMove(u32 battler);
 void PrepareStringBattle(u16 stringId, u32 battler);
 void ResetSentPokesToOpponentValue(void);
