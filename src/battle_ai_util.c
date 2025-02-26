@@ -3840,6 +3840,7 @@ static u32 IncreaseStatUpScoreInternal(u32 battlerAtk, u32 battlerDef, u32 statI
     u32 noOfHitsToFaint = NoOfHitsForTargetToFaintAI(battlerDef, battlerAtk);
     u32 aiIsFaster = AI_IsFaster(battlerAtk, battlerDef, TRUE);
     u32 shouldSetUp = ((noOfHitsToFaint >= 2 && aiIsFaster) || (noOfHitsToFaint >= 3 && !aiIsFaster) || noOfHitsToFaint == UNKNOWN_NO_OF_HITS);
+    int i;
 
     if (considerContrary && AI_DATA->abilities[battlerAtk] == ABILITY_CONTRARY)
         return NO_INCREASE;
@@ -3860,9 +3861,32 @@ static u32 IncreaseStatUpScoreInternal(u32 battlerAtk, u32 battlerDef, u32 statI
     if (AI_DATA->abilities[battlerDef] == ABILITY_OPPORTUNIST)
         return NO_INCREASE;
 
-    // If predicting switch, stat increases are great momentum
+    // Don't increase stats if opposing battler has Encore
+    if (HasMoveEffect(battlerDef, EFFECT_ENCORE))
+        return NO_INCREASE;
+
+    if (IsDoubleBattle() && HasMoveEffect(GetPartnerBattler(battlerDef), EFFECT_ENCORE))
+        return NO_INCREASE;
+
+    // Predicting switch
     if (IsBattlerPredictedToSwitch(battlerDef))
+    {
+        struct Pokemon *playerParty = GetBattlerParty(battlerDef);
+        // If expected switchin outspeeds and has Encore, don't increase
+        for (i = 0; i < MAX_MON_MOVES; i++)
+        {
+            if (GetMoveEffect(GetMonData(&playerParty[AI_DATA->mostSuitableMonId[battlerDef]], MON_DATA_MOVE1 + i, NULL)) == EFFECT_ENCORE
+                && GetMonData(&playerParty[AI_DATA->mostSuitableMonId[battlerDef]], MON_DATA_PP1 + i, NULL) > 0);
+            {
+                if(GetMonData(&playerParty[AI_DATA->mostSuitableMonId[battlerDef]], MON_DATA_SPEED, NULL) > gBattleMons[battlerAtk].speed)
+                {
+                    return NO_INCREASE;
+                }
+            }   
+        }
+        // Otherwise if predicting switch, stat increases are great momentum
         tempScore += WEAK_EFFECT;
+    }
 
     switch (statId)
     {
