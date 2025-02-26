@@ -89,6 +89,7 @@
 #define TIME_NIGHT             3
 
 extern struct Time gLocalTime;
+extern const s32 sNumDaysInMonths[12];
 
 void RtcDisableInterrupts(void);
 void RtcRestoreInterrupts(void);
@@ -119,5 +120,9 @@ void CalcTimeDifference(struct Time *result, struct Time *t1, struct Time *t2);
 u32 RtcGetMinuteCount(void);
 u32 RtcGetLocalDayCount(void);
 void FormatDecimalTimeWithoutSeconds(u8 *dest, s8 hour, s8 minute, bool32 is24Hour);
+u16 GetFullYear(void);
+enum Month GetMonth(void);
+u8 GetDay(void);
+enum Weekday GetDayOfWeek(void);
 
 #endif // GUARD_RTC_UTIL_H

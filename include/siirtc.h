@@ -13,7 +13,19 @@
 #define MINUTES_PER_HOUR    60
 #define SECONDS_PER_MINUTE  60
 
-enum
+enum Weekday
+{
+    WEEKDAY_SUN,
+    WEEKDAY_MON,
+    WEEKDAY_TUE,
+    WEEKDAY_WED,
+    WEEKDAY_THU,
+    WEEKDAY_FRI,
+    WEEKDAY_SAT,
+    WEEKDAY_COUNT,
+};
+
+enum Month
 {
     MONTH_JAN = 1,
     MONTH_FEB,
