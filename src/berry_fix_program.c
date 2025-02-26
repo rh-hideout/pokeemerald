@@ -12,6 +12,7 @@
 #include "text.h"
 #include "menu.h"
 #include "m4a.h"
+#include "decompress.h"
 #include "constants/rgb.h"
 
 enum {
@@ -366,8 +367,8 @@ static void BerryFix_SetScene(int scene)
         break;
     }
     CopyBgTilemapBufferToVram(0);
-    LZ77UnCompVram(sBerryFixGraphics[scene].gfx, (void *)BG_CHAR_ADDR(1));
-    LZ77UnCompVram(sBerryFixGraphics[scene].tilemap, (void *)BG_SCREEN_ADDR(31));
+    DecompressDataWithHeaderVram(sBerryFixGraphics[scene].gfx, (void *)BG_CHAR_ADDR(1));
+    DecompressDataWithHeaderVram(sBerryFixGraphics[scene].tilemap, (void *)BG_SCREEN_ADDR(31));
     // These palettes range in size from 32-48 colors, so the below is interpreting whatever
     // follows the palette (by default, the corresponding tiles) as the remaining 80-96.
     CpuCopy32(sBerryFixGraphics[scene].palette, (void *)BG_PLTT, PLTT_SIZEOF(128));

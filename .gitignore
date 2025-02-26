@@ -13,6 +13,12 @@
 *.8bpp
 *.gbapal
 *.lz
+<<<<<<< HEAD
+=======
+*.smol
+*.fastSmol
+*.smolTM
+>>>>>>> tilemap-test
 *.rl
 *.latfont
 *.hwjpnfont
@@ -41,6 +47,8 @@ prefabs.json
 /pokeemerald-*.png
 src/data/map_group_count.h
 tools/trainerproc/trainerproc
+tools/compresSmol/compresSmol
+tools/compresSmol/compresSmolTilemap
 *.Identifier
 *.smol
 *.fastSmol

@@ -1137,4 +1137,7 @@
 #undef B_FLAG_SLEEP_CLAUSE
 #define B_FLAG_SLEEP_CLAUSE              TESTING_FLAG_SLEEP_CLAUSE
 
+// Compression DebugPrintf switch
+#define T_COMPRESSION_SHOULD_PRINT TRUE
+
 #endif // GUARD_CONFIG_TEST_H

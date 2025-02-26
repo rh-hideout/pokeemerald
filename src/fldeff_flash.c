@@ -1,5 +1,6 @@
 #include "global.h"
 #include "braille_puzzles.h"
+#include "decompress.h"
 #include "event_data.h"
 #include "event_scripts.h"
 #include "field_effect.h"
@@ -216,8 +217,8 @@ static void Task_ExitCaveTransition1(u8 taskId)
 static void Task_ExitCaveTransition2(u8 taskId)
 {
     SetGpuReg(REG_OFFSET_DISPCNT, 0);
-    LZ77UnCompVram(sCaveTransitionTiles, (void *)(VRAM + 0xC000));
-    LZ77UnCompVram(sCaveTransitionTilemap, (void *)(VRAM + 0xF800));
+    DecompressDataWithHeaderVram(sCaveTransitionTiles, (void *)(VRAM + 0xC000));
+    DecompressDataWithHeaderVram(sCaveTransitionTilemap, (void *)(VRAM + 0xF800));
     LoadPalette(sCaveTransitionPalette_White, BG_PLTT_ID(14), PLTT_SIZE_4BPP);
     LoadPalette(&sCaveTransitionPalette_Enter[8], BG_PLTT_ID(14), PLTT_SIZEOF(8));
     SetGpuReg(REG_OFFSET_BLDCNT, BLDCNT_TGT1_BG0
@@ -301,8 +302,8 @@ static void Task_EnterCaveTransition1(u8 taskId)
 static void Task_EnterCaveTransition2(u8 taskId)
 {
     SetGpuReg(REG_OFFSET_DISPCNT, 0);
-    LZ77UnCompVram(sCaveTransitionTiles, (void *)(VRAM + 0xC000));
-    LZ77UnCompVram(sCaveTransitionTilemap, (void *)(VRAM + 0xF800));
+    DecompressDataWithHeaderVram(sCaveTransitionTiles, (void *)(VRAM + 0xC000));
+    DecompressDataWithHeaderVram(sCaveTransitionTilemap, (void *)(VRAM + 0xF800));
     SetGpuReg(REG_OFFSET_BLDCNT, 0);
     SetGpuReg(REG_OFFSET_BLDALPHA, 0);
     SetGpuReg(REG_OFFSET_BLDY, 0);

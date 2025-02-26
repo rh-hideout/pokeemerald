@@ -3833,9 +3833,7 @@ static void SpriteCB_GridSquare(struct Sprite *sprite)
 static void CreateWheelCenterSprite(void)
 {
     u8 spriteId;
-
     LoadCompressedSpriteSheet(&sSpriteSheet_WheelCenter);
-
     // This sprite id isn't saved because it doesn't need to be referenced again
     // but by virtue of creation order it's SPR_WHEEL_CENTER
     spriteId = CreateSprite(&sSpriteTemplate_WheelCenter, 116, 80, 81);

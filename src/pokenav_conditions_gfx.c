@@ -222,7 +222,7 @@ static u32 LoopedTask_OpenConditionGraphMenu(s32 state)
          if (FreeTempTileDataBuffersIfPossible())
             return LT_PAUSE;
 
-        LZ77UnCompVram(gPokenavCondition_Tilemap, menu->tilemapBuffers[0]);
+        DecompressDataWithHeaderVram(gPokenavCondition_Tilemap, menu->tilemapBuffers[0]);
         SetBgTilemapBuffer(3, menu->tilemapBuffers[0]);
         if (IsConditionMenuSearchMode() == TRUE)
             CopyToBgTilemapBufferRect(3, gPokenavOptions_Tilemap, 0, 5, 9, 4);
@@ -236,7 +236,7 @@ static u32 LoopedTask_OpenConditionGraphMenu(s32 state)
         if (FreeTempTileDataBuffersIfPossible())
             return LT_PAUSE;
 
-        LZ77UnCompVram(sConditionGraphData_Tilemap, menu->tilemapBuffers[2]);
+        DecompressDataWithHeaderVram(sConditionGraphData_Tilemap, menu->tilemapBuffers[2]);
         SetBgTilemapBuffer(2, menu->tilemapBuffers[2]);
         CopyBgTilemapBufferToVram(2);
         CopyPaletteIntoBufferUnfaded(gConditionGraphData_Pal, BG_PLTT_ID(3), PLTT_SIZE_4BPP);
